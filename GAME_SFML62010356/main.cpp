@@ -250,14 +250,19 @@ int main()
 	Text levelName;
 	levelName.setFont(font);
 	levelName.setCharacterSize(72);
-	levelName.setPosition(-35 + RWWIDTH / 2, -70 + RWHEIGHT / 2);
+	levelName.setPosition(-35 + RWWIDTH / 2, -200 + RWHEIGHT / 2);
 	levelName.setFillColor(Color(43, 195, 94));
+	RectangleShape levelBackFrame;
+	levelBackFrame.setFillColor(Color(130, 0, 0, 180));
+	levelBackFrame.setSize(Vector2f(1000, 500));
+	levelBackFrame.setOrigin(backFrame.getSize().x / 2, backFrame.getSize().y / 2);
+	levelBackFrame.setPosition(60 + RWWIDTH / 2,120 + RWHEIGHT / 2);
 
 	Text pressQ;
 	pressQ.setFont(font);
 	pressQ.setCharacterSize(72);
 	pressQ.setFillColor(Color(43, 195, 94));
-	pressQ.setPosition(-20+RWWIDTH/2,4*RWHEIGHT/6);
+	pressQ.setPosition(-20+RWWIDTH/2,-100+4*RWHEIGHT/6);
 	pressQ.setString("Press Q to continue");
 	pressQ.setOrigin(pressQ.getGlobalBounds().width/2,pressQ.getGlobalBounds().height/2);
 	//Game Loop
@@ -346,7 +351,7 @@ int main()
 			htp.Draw(rw);
 			if (e.type == Event::KeyReleased)
 			{
-				if (e.key.code == Keyboard::E)//Using same key cause "bouncing"?
+				if (e.key.code == Keyboard::Escape)//Using same key cause "bouncing"?
 				{
 					gameState = 0;
 				}
@@ -389,6 +394,7 @@ int main()
 		else if (gameState == 1000)//Waiting First level
 		{
 			rw.draw(bg);
+			rw.draw(levelBackFrame);
 			levelName.setString("Try and move me");
 			levelName.setOrigin(levelName.getGlobalBounds().width / 2, levelName.getGlobalBounds().height / 2);
 			rw.draw(levelName);
@@ -749,6 +755,7 @@ int main()
 		else if (gameState == 1001)//Waiting second level
 		{
 		rw.draw(bg);
+		rw.draw(levelBackFrame);
 			levelName.setString("Vampire will (never) hurt you");
 			levelName.setOrigin(levelName.getGlobalBounds().width / 2, levelName.getGlobalBounds().height / 2);
 			rw.draw(levelName);
@@ -1116,6 +1123,7 @@ int main()
 		else if (gameState == 1002)//Wait third level
 		{
 		rw.draw(bg);
+		rw.draw(levelBackFrame);
 			levelName.setString("100 Evil Souls");
 			levelName.setOrigin(levelName.getGlobalBounds().width / 2, levelName.getGlobalBounds().height / 2);
 			rw.draw(levelName);
@@ -1482,6 +1490,7 @@ int main()
 		else if (gameState==1003)//Pre win end game
 		{
 		rw.draw(bg);
+		rw.draw(levelBackFrame);
 			cout << "win state"<< endl;
 			rw.draw(pressQ);
 			if (e.type==Event::KeyReleased)
@@ -1595,7 +1604,6 @@ int main()
 	}
 	return 0;
 }
-
 
 
 bool sortinrev(const pair<int, string>& a, const pair<int, string>& b) //Sort in descending order consider first element
