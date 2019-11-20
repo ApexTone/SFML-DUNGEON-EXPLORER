@@ -10,7 +10,14 @@
 #include"Enemy.h"
 #include"Score.h"
 //TODO: GIVE BUFF TO PLAYER: Health++,Damage++
-//TODO: GIVE BUFF TO ENEMIES: Speed++,Health++,Fast Spawn
+//TODO: GIVE BUFF TO ENEMIES: Speed++,Fast Spawn
+//Equal 4 buffCombo
+
+int buffComboRandom()
+{
+	srand(time(NULL));
+	return rand() % 4;
+}
 
 bool sortinrev(const pair<int, string>& a, const pair<int, string>& b);//descending vector sort
 #define FRAMERATE 40 //DON'T CHANGE THIS VALUE AT ALL!
@@ -34,6 +41,13 @@ int main()
 	{
 		lvl[i].minionSum = lvl[i].tankNO+lvl[i].casterNO+lvl[i].vampireNO;
 	}
+
+
+	//GOD MODE
+	lvl[0].minionSum=10;
+	lvl[1].minionSum=10;
+	lvl[2].minionSum=10;
+	
 	bool win = false;
 	RenderWindow rw(VideoMode(RWWIDTH, RWHEIGHT),"Dungeon Explorer 62010356", Style::Close | Style::Titlebar);
 	View view(Vector2f(0.0f,0.0f), Vector2f(RWWIDTH, RWHEIGHT));
@@ -65,7 +79,6 @@ int main()
 	backgroundMusic.play();
 	backgroundMusic.setVolume(30);
 
-	float spawnTime=1.5f;
 	float deltaTime = 0.0f,totalTime=0.0f;
 	Clock clk;
 
@@ -83,6 +96,8 @@ int main()
 	Clock iFrame;
 	const float iFrameLength = 1.0f;
 
+	float enemySpeedMult = 1, enemySpawnDivider = 1;
+	float spawnTime = 1.5f;
 
 	Texture tankTexture;
 	tankTexture.loadFromFile("MinionTank.png");
@@ -302,6 +317,9 @@ int main()
 
 		if (gameState == 0)//Menu state
 		{
+			Level = 1;
+			enemySpawnDivider = 1.0f;
+			enemySpeedMult = 1.0f;
 			menu.Draw(rw);
 			p.resetStat();
 			vampireVector.clear();
@@ -689,11 +707,12 @@ int main()
 				wallVector[i].Draw(rw);
 			}
 			*/
-
+			cout << p.getKillCount()<< endl;
 			//IF WIN: Level++
 			if (p.getKillCount() >= lvl[0].minionSum)
 			{
 				//win = true;
+				Level = 2;
 				score.updateScore(2000);
 				p.manualWalkSoundStop();
 				p.resetStat();
@@ -712,7 +731,7 @@ int main()
 			}
 		}
 
-		else if (gameState == 1001)
+		else if (gameState == 1001)//Waiting second level
 		{
 			levelName.setString("Vampire will (never) hurt you");
 			levelName.setOrigin(levelName.getGlobalBounds().width / 2, levelName.getGlobalBounds().height / 2);
@@ -722,6 +741,17 @@ int main()
 			{
 				if (e.key.code == Keyboard::Q)
 				{
+					enemySpawnDivider = 1.0f;
+					enemySpeedMult = 1.0f;
+					int buffCombo = buffComboRandom();
+					cout <<"Buff Combo: "<< buffCombo << endl;
+					switch (buffCombo)
+					{
+					case 0: p.damageBuff(); enemySpeedMult = 1.2f; break;
+					case 1: p.damageBuff(); enemySpawnDivider = 1.5f; break;//spawn rate to 1 sec/spawn
+					case 2: p.healthBuff(); enemySpeedMult = 1.2f; break;
+					case 3: p.healthBuff(); enemySpawnDivider = 1.5f; break;
+					}
 					gameState = 2;
 				}
 			}
@@ -739,35 +769,35 @@ int main()
 
 			//auto spawning
 			totalTime += deltaTime;
-			if (totalTime >= spawnTime)
+			if (totalTime >= spawnTime/enemySpawnDivider)
 			{
 				int randomNumber = 1 + ((int)rand() % 3);
 				if (randomNumber == 1)
 				{
 					if (slvl[1].tank++ < lvl[1].tankNO)
-						tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
+						tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f*enemySpeedMult));
 					else if (slvl[1].vampire++ < lvl[1].vampireNO)
-						vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
+						vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f * enemySpeedMult));
 					else if (slvl[1].caster++ < lvl[1].casterNO)
-						casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
+						casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f * enemySpeedMult));
 				}
 				if (randomNumber == 2)
 				{
 					if (slvl[1].vampire++ < lvl[1].vampireNO)
-						vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
+						vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f * enemySpeedMult));
 					else if (slvl[1].tank++ < lvl[1].tankNO)
-						tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
+						tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f * enemySpeedMult));
 					else if (slvl[1].caster++ < lvl[1].casterNO)
-						casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
+						casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f * enemySpeedMult));
 				}
 				if (randomNumber == 3)
 				{
 					if (slvl[1].caster++ < lvl[1].casterNO)
-						casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
+						casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f * enemySpeedMult));
 					else if (slvl[1].tank++ < lvl[1].tankNO)
-						tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
+						tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f * enemySpeedMult));
 					else if (slvl[1].vampire++ < lvl[1].vampireNO)
-						vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
+						vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f * enemySpeedMult));
 				}
 				totalTime = 0;
 			}
@@ -1042,10 +1072,12 @@ int main()
 			p.Draw(rw);
 			score.Draw(rw);
 
+			cout << p.getKillCount() << endl;
 			//IF WIN: Level++
 			if (p.getKillCount() >= lvl[1].minionSum)
 			{
 				//win = true;
+				Level = 3;
 				score.updateScore(2000);
 				p.manualWalkSoundStop();
 				p.resetStat();
@@ -1075,11 +1107,22 @@ int main()
 			{
 				if (e.key.code == Keyboard::Q)
 				{
+					enemySpawnDivider = 1.0f;
+					enemySpeedMult = 1.0f;
+					int buffCombo = buffComboRandom();
+					cout << "Buff Combo: " << buffCombo << endl;
+					switch (buffCombo)
+					{
+					case 0: p.damageBuff(); enemySpeedMult = 1.2f; break;
+					case 1: p.damageBuff(); enemySpawnDivider = 1.5f; break;//spawn rate to 1 sec/spawn
+					case 2: p.healthBuff(); enemySpeedMult = 1.2f; break;
+					case 3: p.healthBuff(); enemySpawnDivider = 1.5f; break;
+					}
 					gameState = 3;
 				}
 			}
 		}
-		else if (gameState==3)
+		else if (gameState == 3)
 		{
 		if (e.type == Event::KeyReleased)//Pause button
 		{
@@ -1092,35 +1135,35 @@ int main()
 
 		//auto spawning
 		totalTime += deltaTime;
-		if (totalTime >= spawnTime)
+		if (totalTime >= spawnTime/enemySpawnDivider)
 		{
 			int randomNumber = 1 + ((int)rand() % 3);
 			if (randomNumber == 1)
 			{
 				if (slvl[2].tank++ < lvl[2].tankNO)
-					tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
+					tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f * enemySpeedMult));
 				else if (slvl[2].vampire++ < lvl[2].vampireNO)
-					vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
+					vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f * enemySpeedMult));
 				else if (slvl[2].caster++ < lvl[2].casterNO)
-					casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
+					casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f * enemySpeedMult));
 			}
 			if (randomNumber == 2)
 			{
 				if (slvl[2].vampire++ < lvl[2].vampireNO)
-					vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
+					vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f * enemySpeedMult));
 				else if (slvl[2].tank++ < lvl[2].tankNO)
-					tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
+					tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f * enemySpeedMult));
 				else if (slvl[2].caster++ < lvl[2].casterNO)
-					casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
+					casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f * enemySpeedMult));
 			}
 			if (randomNumber == 3)
 			{
 				if (slvl[2].caster++ < lvl[2].casterNO)
-					casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
+					casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f * enemySpeedMult));
 				else if (slvl[2].tank++ < lvl[2].tankNO)
-					tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
+					tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f * enemySpeedMult));
 				else if (slvl[2].vampire++ < lvl[2].vampireNO)
-					vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
+					vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f * enemySpeedMult));
 			}
 			totalTime = 0;
 		}
@@ -1395,17 +1438,18 @@ int main()
 		p.Draw(rw);
 		score.Draw(rw);
 
+		cout << p.getKillCount() << endl;
 		//IF WIN: Level++
 		if (p.getKillCount() >= lvl[2].minionSum)
 		{
-			win = true;
+			Level=1;
 			score.updateScore(2000);
 			p.manualWalkSoundStop();
 			p.resetStat();
 			tankVector.clear();
 			vampireVector.clear();
 			casterVector.clear();
-			gameState = 1002;//Next wating level
+			gameState = 1003;//Pre win
 		}
 
 		//IF LOSE: GO TO ENTER SCORE SCREEN
@@ -1418,8 +1462,18 @@ int main()
 		}
 
 
-
-		
+		else if (gameState==1003)//Pre win end game
+		{
+			cout << "win state"<< endl;
+			win = true;
+			if (e.type==Event::KeyPressed)
+			{
+				if (e.key.code==Keyboard::Q)
+				{
+					gameState = 99;
+				}
+			}
+		}
 		else if (gameState == 99)//End game state: Name+Score (NAME CAN'T EXCEED 10 LETTERS (field limit size)) TODO:DECORATE
 		{
 		for (int i=0;i<3;i++)

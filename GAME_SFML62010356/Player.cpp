@@ -92,10 +92,11 @@ void Player::resetStat()
 	hitbox.setPosition(body.getPosition());
 	punchHitbox.setPosition(body.getPosition());
 	healthBar.setPosition(hitbox.getPosition().x - 20, hitbox.getPosition().y - (hitbox.getSize().y / 2) + 20);
-	healthBar.setFillColor(Color::Blue);
+	healthBar.setFillColor(Color::Red);
 	health = 100;
 	fireRateControl = 0;
 	meleeRateControl = 0;
+	maxHealth = 100;
 	killCount = 0;
 	bullets.clear();
 	bulletDam = 20;
@@ -259,7 +260,7 @@ void Player::Update(float deltaTime,RenderWindow& rw)
 	body.setTextureRect(animation.uvRect);
 
 
-	const float xSize = 100.0f, ySize = 20.0f,maxHealth=100;
+	const float xSize = 100.0f, ySize = 20.0f;
 
 	float percentHealth=(health/maxHealth)*100;
 

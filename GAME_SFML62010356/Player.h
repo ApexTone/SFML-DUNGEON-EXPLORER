@@ -42,7 +42,7 @@ public:
 	bool isDead(RenderWindow& rw,float deltaTime);
 	void manualWalkSoundStop() { walk.pause(); }
 
-	void healthBuff() { healthBar.setFillColor(Color::Blue); health = 200; }
+	void healthBuff() { healthBar.setFillColor(Color::Blue); health = 200; maxHealth = 200; }
 	void damageBuff() { bulletDam = 40; meleeDam = 50; }
 private:
 	RectangleShape hitbox;//Collision part
@@ -73,4 +73,6 @@ private:
 	RectangleShape healthBar;
 	float iFrameTime = 1.5f,currentTime=0;
 	unsigned int killCount = 0;
+
+	float maxHealth = 100;
 };
