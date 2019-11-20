@@ -41,11 +41,13 @@ int main()
 	{
 		lvl[i].minionSum = lvl[i].tankNO+lvl[i].casterNO+lvl[i].vampireNO;
 	}
-
+	
+	
 	//GOD MODE
 	lvl[0].minionSum=10;
 	lvl[1].minionSum=10;
 	lvl[2].minionSum=10;
+	
 	
 	bool win = false;
 	RenderWindow rw(VideoMode(RWWIDTH, RWHEIGHT),"Dungeon Explorer 62010356", Style::Close | Style::Titlebar);
@@ -239,13 +241,13 @@ int main()
 
 	Sprite htpBG;
 	Texture htpTex;
-	if (!htpTex.loadFromFile("Scroll.png"))
+	if (!htpTex.loadFromFile("ScrollNew.jpg"))
 	{
 		cout << "Can't load SCROLL.PNG" << endl;
 	}
 	htpBG.setTexture(htpTex);
 	htpBG.setTextureRect(IntRect(20, 22, htpTex.getSize().x, htpTex.getSize().y));
-	htpBG.setScale(Vector2f(1.1*RWWIDTH / htpBG.getGlobalBounds().width, 1.1*RWHEIGHT / htpBG.getGlobalBounds().height));
+	htpBG.setScale(Vector2f(1.05*RWWIDTH / htpBG.getGlobalBounds().width, 1.1*RWHEIGHT / htpBG.getGlobalBounds().height));
 
 	Text levelName;
 	levelName.setFont(font);
@@ -344,6 +346,7 @@ int main()
 			vampireVector.clear();
 			tankVector.clear();
 			casterVector.clear();
+			pressQ.setPosition(-20 + RWWIDTH / 2, -100 + 4 * RWHEIGHT / 6);
 		}
 		else if (gameState == -1)//How to play TODO:DECORATE
 		{
@@ -395,7 +398,7 @@ int main()
 		{
 			rw.draw(bg);
 			rw.draw(levelBackFrame);
-			levelName.setString("Try and move me");
+			levelName.setString("Bullet sponge");
 			levelName.setOrigin(levelName.getGlobalBounds().width / 2, levelName.getGlobalBounds().height / 2);
 			rw.draw(levelName);
 			rw.draw(pressQ);
@@ -1489,9 +1492,11 @@ int main()
 
 		else if (gameState==1003)//Pre win end game
 		{
-		rw.draw(bg);
+		rw.draw(highscoreBackground);
+		levelName.setString("You win!");
 		rw.draw(levelBackFrame);
 			cout << "win state"<< endl;
+			rw.draw(levelName);
 			rw.draw(pressQ);
 			if (e.type==Event::KeyReleased)
 			{

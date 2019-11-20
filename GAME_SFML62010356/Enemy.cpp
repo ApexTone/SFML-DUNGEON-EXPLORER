@@ -71,7 +71,7 @@ void Tank::Update(float deltaTime, RenderWindow& rw, Player &p)
 	}
 
 
-	if (dist >= 800)//Out of tracking range
+	if (dist >= 900)//Out of tracking range
 	{
 		if (randomNumber == 0)
 		{
@@ -284,7 +284,7 @@ void Vampire::Update(float deltaTime, RenderWindow& rw, Player& p)
 	}
 
 
-	if (dist >= 500)//Out of tracking range
+	if (dist >= 700)//Out of tracking range
 	{
 		if (randomNumber == 0)
 		{

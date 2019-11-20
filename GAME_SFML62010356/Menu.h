@@ -34,9 +34,9 @@ public:
 
 	void Draw(RenderWindow &rw);
 private:
-	//Sprite bg;
 	Font font;
 	Text key[7];
+	Text buff[2];
 };
 
 class Pause

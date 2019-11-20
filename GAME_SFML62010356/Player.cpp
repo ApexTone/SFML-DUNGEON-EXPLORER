@@ -101,6 +101,7 @@ void Player::resetStat()
 	bullets.clear();
 	bulletDam = 20;
 	meleeDam = 25;
+	body.setFillColor(Color::White);
 }
 
 void Player::Update(float deltaTime,RenderWindow& rw)

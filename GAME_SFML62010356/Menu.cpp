@@ -167,7 +167,7 @@ HowToPlay::HowToPlay(float width, float height)
 		key[i].setFont(font);
 		key[i].setFillColor(Color::Black);
 		key[i].setCharacterSize(50);
-		key[i].setPosition(Vector2f(width / 3, (height / 8) * (i + 1)));
+		key[i].setPosition(Vector2f(width / 8, (height / 8) * (i + 1)));
 	}
 	key[0].setString("W : Up");
 	key[1].setString("A : Left");
@@ -176,6 +176,17 @@ HowToPlay::HowToPlay(float width, float height)
 	key[4].setString("Left Mouse Click : Melee");
 	key[5].setString("Right Mouse Click : Shoot bullet");
 	key[6].setString("ESC : Quit to menu/Pause current game");
+	for (int i=0;i<2;i++)
+	{
+		buff[i].setFont(font);
+		buff[i].setFillColor(Color::Black);
+		buff[i].setCharacterSize(40);
+		buff[i].setPosition(Vector2f(7.5*width / 15, (height / 3) * (i + 1)));
+	}
+	buff[0].setString("Damage buff: Player will glow RED");
+	buff[0].setFillColor(Color::Red);
+	buff[1].setString("Health buff: Player health bar will turn BLUE");
+	buff[1].setFillColor(Color::Blue);
 
 	/*
 	Texture tex;//DONT WORK IN HERE
@@ -201,6 +212,10 @@ void HowToPlay::Draw(RenderWindow& rw)
 	for (int i=0;i<7;i++)
 	{
 		rw.draw(key[i]);
+	}
+	for (int i=0;i<2;i++)
+	{
+		rw.draw(buff[i]);
 	}
 }
 
