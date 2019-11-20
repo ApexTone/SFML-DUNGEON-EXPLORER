@@ -1,5 +1,5 @@
 99999,DEV
 21500,fascist
 21500,yay
-20000,devtoo
-20000,wowDev
+21400,firstrun
+21100,secondrun

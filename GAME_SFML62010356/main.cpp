@@ -42,7 +42,6 @@ int main()
 		lvl[i].minionSum = lvl[i].tankNO+lvl[i].casterNO+lvl[i].vampireNO;
 	}
 
-
 	//GOD MODE
 	lvl[0].minionSum=10;
 	lvl[1].minionSum=10;
@@ -180,7 +179,7 @@ int main()
 
 	Texture hsBgText;
 	RectangleShape backFrame;
-	backFrame.setFillColor(Color(130,0,0));
+	backFrame.setFillColor(Color(130,0,0,180));
 	backFrame.setSize(Vector2f(1200,800));
 	backFrame.setOrigin(backFrame.getSize().x/2,backFrame.getSize().y/2);
 	backFrame.setPosition(60+RWWIDTH/2,30+RWHEIGHT/2);
@@ -251,7 +250,16 @@ int main()
 	Text levelName;
 	levelName.setFont(font);
 	levelName.setCharacterSize(72);
+	levelName.setPosition(-35 + RWWIDTH / 2, -70 + RWHEIGHT / 2);
 	levelName.setFillColor(Color(43, 195, 94));
+
+	Text pressQ;
+	pressQ.setFont(font);
+	pressQ.setCharacterSize(72);
+	pressQ.setFillColor(Color(43, 195, 94));
+	pressQ.setPosition(-20+RWWIDTH/2,4*RWHEIGHT/6);
+	pressQ.setString("Press Q to continue");
+	pressQ.setOrigin(pressQ.getGlobalBounds().width/2,pressQ.getGlobalBounds().height/2);
 	//Game Loop
 	while (rw.isOpen())
 	{
@@ -317,6 +325,12 @@ int main()
 
 		if (gameState == 0)//Menu state
 		{
+			for (int i = 0; i < 3; i++)
+			{
+				slvl[i].caster = 0;
+				slvl[i].tank = 0;
+				slvl[i].vampire = 0;
+			}
 			Level = 1;
 			enemySpawnDivider = 1.0f;
 			enemySpeedMult = 1.0f;
@@ -374,10 +388,11 @@ int main()
 
 		else if (gameState == 1000)//Waiting First level
 		{
+			rw.draw(bg);
 			levelName.setString("Try and move me");
 			levelName.setOrigin(levelName.getGlobalBounds().width / 2, levelName.getGlobalBounds().height / 2);
-			levelName.setPosition(-35 + RWWIDTH / 2, -20 + RWHEIGHT / 2);
 			rw.draw(levelName);
+			rw.draw(pressQ);
 			if (e.type == Event::KeyReleased)
 			{
 				if (e.key.code == Keyboard::Q)
@@ -733,10 +748,11 @@ int main()
 
 		else if (gameState == 1001)//Waiting second level
 		{
+		rw.draw(bg);
 			levelName.setString("Vampire will (never) hurt you");
 			levelName.setOrigin(levelName.getGlobalBounds().width / 2, levelName.getGlobalBounds().height / 2);
-			levelName.setPosition(-35 + RWWIDTH / 2, -20 + RWHEIGHT / 2);
 			rw.draw(levelName);
+			rw.draw(pressQ);
 			if (e.type == Event::KeyReleased)
 			{
 				if (e.key.code == Keyboard::Q)
@@ -1099,10 +1115,11 @@ int main()
 
 		else if (gameState == 1002)//Wait third level
 		{
+		rw.draw(bg);
 			levelName.setString("100 Evil Souls");
 			levelName.setOrigin(levelName.getGlobalBounds().width / 2, levelName.getGlobalBounds().height / 2);
-			levelName.setPosition(-35 + RWWIDTH / 2, -20 + RWHEIGHT / 2);
 			rw.draw(levelName);
+			rw.draw(pressQ);
 			if (e.type == Event::KeyReleased)
 			{
 				if (e.key.code == Keyboard::Q)
@@ -1464,17 +1481,19 @@ int main()
 
 		else if (gameState==1003)//Pre win end game
 		{
+		rw.draw(bg);
 			cout << "win state"<< endl;
-			win = true;
-			if (e.type==Event::KeyPressed)
+			rw.draw(pressQ);
+			if (e.type==Event::KeyReleased)
 			{
 				if (e.key.code==Keyboard::Q)
 				{
+					win = true;
 					gameState = 99;
 				}
 			}
 		}
-		else if (gameState == 99)//End game state: Name+Score (NAME CAN'T EXCEED 10 LETTERS (field limit size)) TODO:DECORATE
+		else if (gameState == 99)//End game state: Name+Score (NAME CAN'T EXCEED 10 LETTERS (field limit size))
 		{
 		for (int i=0;i<3;i++)
 		{
@@ -1571,6 +1590,7 @@ int main()
 				}
 			}
 		}
+
 		rw.display();
 	}
 	return 0;
