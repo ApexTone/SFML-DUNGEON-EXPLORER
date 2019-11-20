@@ -92,11 +92,14 @@ void Player::resetStat()
 	hitbox.setPosition(body.getPosition());
 	punchHitbox.setPosition(body.getPosition());
 	healthBar.setPosition(hitbox.getPosition().x - 20, hitbox.getPosition().y - (hitbox.getSize().y / 2) + 20);
+	healthBar.setFillColor(Color::Blue);
 	health = 100;
 	fireRateControl = 0;
 	meleeRateControl = 0;
 	killCount = 0;
 	bullets.clear();
+	bulletDam = 20;
+	meleeDam = 25;
 }
 
 void Player::Update(float deltaTime,RenderWindow& rw)

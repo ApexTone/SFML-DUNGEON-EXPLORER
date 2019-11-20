@@ -1,5 +1,5 @@
 99999,DEV
+21500,fascist
+21500,yay
 20000,devtoo
-18000,yeesss
-18000,newgame
-11000,nice
+20000,wowDev

@@ -29,8 +29,8 @@ public:
 	void setBulletPosition(int i, float a = 999999, float b = 999999);
 
 	void takeDamage(int damage) { health -= damage; }
-	int bulletDamage() { return 20; }
-	int meleeDamage() { return 25; }
+	int bulletDamage() { return bulletDam; }
+	int meleeDamage() { return meleeDam; }
 	bool punching() { return isPunching; }
 
 	void increaseKillCount() { killCount++; }
@@ -41,6 +41,9 @@ public:
 
 	bool isDead(RenderWindow& rw,float deltaTime);
 	void manualWalkSoundStop() { walk.pause(); }
+
+	void healthBuff() { healthBar.setFillColor(Color::Blue); health = 200; }
+	void damageBuff() { bulletDam = 40; meleeDam = 50; }
 private:
 	RectangleShape hitbox;//Collision part
 	RectangleShape punchHitbox;
@@ -63,6 +66,8 @@ private:
 	bool mouseState = false;
 	bool action = false;
 	bool isPunching = false;
+	int bulletDam = 20,meleeDam=25;
+
 
 	int health=100;
 	RectangleShape healthBar;

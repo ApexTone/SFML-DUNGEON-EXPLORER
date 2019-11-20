@@ -1,12 +1,12 @@
 ﻿  main.cpp
-C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(233,84): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
-C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(233,84): warning C4244:         with
-C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(233,84): warning C4244:         [
-C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(233,84): warning C4244:             T=float
-C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(233,84): warning C4244:         ]
-C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(233,38): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
-C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(233,38): warning C4244:         with
-C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(233,38): warning C4244:         [
-C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(233,38): warning C4244:             T=float
-C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(233,38): warning C4244:         ]
+C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(237,84): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(237,84): warning C4244:         with
+C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(237,84): warning C4244:         [
+C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(237,84): warning C4244:             T=float
+C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(237,84): warning C4244:         ]
+C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(237,38): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(237,38): warning C4244:         with
+C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(237,38): warning C4244:         [
+C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(237,38): warning C4244:             T=float
+C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(237,38): warning C4244:         ]
   GAME_SFML62010356.vcxproj -> C:\Users\Predator\source\repos\GAME_SFML62010356\Debug\GAME_SFML62010356.exe

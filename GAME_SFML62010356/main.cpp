@@ -9,11 +9,8 @@
 #include"Menu.h"
 #include"Enemy.h"
 #include"Score.h"
-//TODO: ADD IFRAME OPACITY
-//TODO: FIX CASTER ANIMATION
-//TODO: Decorate How To Play
-//TODO: GIVE BUFF TO PLAYER: Health++,iFrame++,Damage++
-//Todo: GIVE BUFF TO ENEMIES: Speed++,Health++,Damage++,Fast Spawn
+//TODO: GIVE BUFF TO PLAYER: Health++,Damage++
+//TODO: GIVE BUFF TO ENEMIES: Speed++,Health++,Fast Spawn
 
 bool sortinrev(const pair<int, string>& a, const pair<int, string>& b);//descending vector sort
 #define FRAMERATE 40 //DON'T CHANGE THIS VALUE AT ALL!
@@ -24,8 +21,8 @@ using namespace sf;
 struct LevelControl
 {
 	const unsigned int tankNO, casterNO, vampireNO;
-	const unsigned int minionSum;
-}lvl[3] = { {20,10,10,40},{20,15,20,55},{20,25,50,95} };
+	unsigned int minionSum;
+}lvl[3] = { {25,10,10,0},{20,15,20,0},{30,20,50,0} };
 struct Spawned
 {
 	unsigned int tank, caster, vampire;
@@ -33,6 +30,10 @@ struct Spawned
 
 int main()
 {
+	for (int i=0;i<3;i++)
+	{
+		lvl[i].minionSum = lvl[i].tankNO+lvl[i].casterNO+lvl[i].vampireNO;
+	}
 	bool win = false;
 	RenderWindow rw(VideoMode(RWWIDTH, RWHEIGHT),"Dungeon Explorer 62010356", Style::Close | Style::Titlebar);
 	View view(Vector2f(0.0f,0.0f), Vector2f(RWWIDTH, RWHEIGHT));
@@ -232,7 +233,10 @@ int main()
 	htpBG.setTextureRect(IntRect(20, 22, htpTex.getSize().x, htpTex.getSize().y));
 	htpBG.setScale(Vector2f(1.1*RWWIDTH / htpBG.getGlobalBounds().width, 1.1*RWHEIGHT / htpBG.getGlobalBounds().height));
 
-
+	Text levelName;
+	levelName.setFont(font);
+	levelName.setCharacterSize(72);
+	levelName.setFillColor(Color(43, 195, 94));
 	//Game Loop
 	while (rw.isOpen())
 	{
@@ -247,10 +251,10 @@ int main()
 			else if (e.type == Event::Resized)
 			{
 				//Maintain same image without stretching 
-				FloatRect visibleArea(0,0,(float)e.size.width,(float)e.size.height);
+				FloatRect visibleArea(0, 0, (float)e.size.width, (float)e.size.height);
 				rw.setView(View(visibleArea));
 			}
-			else if (e.type==Event::KeyReleased && gameState==0)
+			else if (e.type == Event::KeyReleased && gameState == 0)
 			{
 				switch (e.key.code)
 				{
@@ -259,22 +263,22 @@ int main()
 				case Keyboard::Return:
 					switch (menu.getPressedItem())
 					{
-					case 0: cout << "Start game" << endl; 
-						gameState = 1;//game start
+					case 0: cout << "Start game" << endl;
+						gameState = 1000;//pre-game start
 						break;
-					case 1:  cout << "How to play menu" << endl; 
+					case 1:  cout << "How to play menu" << endl;
 						gameState = -1;//How to play
 						break;
-					case 2: cout << "Highscore menu" << endl; 
+					case 2: cout << "Highscore menu" << endl;
 						gameState = -3;//Highscore
 						break;
-					case 3: cout << "Exit game" << endl; 
+					case 3: cout << "Exit game" << endl;
 						rw.close();
 					}
 					break;
 				}
 			}
-	
+
 		}
 		rw.clear(Color(100, 100, 100));
 		/*
@@ -304,13 +308,13 @@ int main()
 			tankVector.clear();
 			casterVector.clear();
 		}
-		else if (gameState==-1)//How to play TODO:DECORATE
+		else if (gameState == -1)//How to play TODO:DECORATE
 		{
 			rw.draw(htpBG);
 			htp.Draw(rw);
 			if (e.type == Event::KeyReleased)
 			{
-				if (e.key.code == Keyboard::Escape)
+				if (e.key.code == Keyboard::E)//Using same key cause "bouncing"?
 				{
 					gameState = 0;
 				}
@@ -329,7 +333,7 @@ int main()
 				gameState = 0;
 			}
 		}
-		else if (gameState==-3)//Highscore
+		else if (gameState == -3)//Highscore
 		{
 			rw.draw(highscoreBackground);
 			rw.draw(backFrame);
@@ -339,7 +343,7 @@ int main()
 				rw.draw(highscoreScoreText[i]);
 				rw.draw(highscoreNameText[i]);
 			}
-			
+
 			if (e.type == Event::KeyReleased)
 			{
 				if (e.key.code == Keyboard::Escape)
@@ -350,7 +354,20 @@ int main()
 		}
 
 
-
+		else if (gameState == 1000)//Waiting First level
+		{
+			levelName.setString("Try and move me");
+			levelName.setOrigin(levelName.getGlobalBounds().width / 2, levelName.getGlobalBounds().height / 2);
+			levelName.setPosition(-35 + RWWIDTH / 2, -20 + RWHEIGHT / 2);
+			rw.draw(levelName);
+			if (e.type == Event::KeyReleased)
+			{
+				if (e.key.code == Keyboard::Q)
+				{
+					gameState = 1;
+				}
+			}
+		}
 		else if (gameState == 1)//First Level
 		{
 			if (e.type == Event::KeyReleased)//Pause button
@@ -364,30 +381,30 @@ int main()
 
 			//auto spawning
 			totalTime += deltaTime;
-			if (totalTime>=spawnTime)
+			if (totalTime >= spawnTime)
 			{
-				int randomNumber = 1+((int)rand()%3);
-				if (randomNumber==1)
+				int randomNumber = 1 + ((int)rand() % 3);
+				if (randomNumber == 1)
 				{
-					if(slvl[0].tank++ < lvl[0].tankNO)
+					if (slvl[0].tank++ < lvl[0].tankNO)
 						tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
-					else if(slvl[0].vampire++ < lvl[0].vampireNO)
+					else if (slvl[0].vampire++ < lvl[0].vampireNO)
 						vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
 					else if (slvl[0].caster++ < lvl[0].casterNO)
 						casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
 				}
-				if (randomNumber==2)
+				if (randomNumber == 2)
 				{
-					if(slvl[0].vampire++ < lvl[0].vampireNO)
+					if (slvl[0].vampire++ < lvl[0].vampireNO)
 						vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
 					else if (slvl[0].tank++ < lvl[0].tankNO)
 						tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
 					else if (slvl[0].caster++ < lvl[0].casterNO)
 						casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
 				}
-				if (randomNumber==3)
+				if (randomNumber == 3)
 				{
-					if(slvl[0].caster++ < lvl[0].casterNO)
+					if (slvl[0].caster++ < lvl[0].casterNO)
 						casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
 					else if (slvl[0].tank++ < lvl[0].tankNO)
 						tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
@@ -401,15 +418,15 @@ int main()
 
 			rw.draw(bg);
 			//OOB COLLISION
-			for (size_t i=0;i<wallVector.size();i++)//Player OOB
+			for (size_t i = 0; i < wallVector.size(); i++)//Player OOB
 			{
-				wallVector[i].GetCollider().CheckCollision(p.GetCollider(),1.0f);
+				wallVector[i].GetCollider().CheckCollision(p.GetCollider(), 1.0f);
 			}
 			for (size_t i = 0; i < tankVector.size(); i++)//Tank OOB
 			{
-				for (size_t j=0;j<wallVector.size();j++)
+				for (size_t j = 0; j < wallVector.size(); j++)
 				{
-					wallVector[j].GetCollider().CheckCollision(tankVector[i]->GetCollider(),1.0f);
+					wallVector[j].GetCollider().CheckCollision(tankVector[i]->GetCollider(), 1.0f);
 				}
 			}
 			for (size_t i = 0; i < vampireVector.size(); i++)//Vampire OOB
@@ -473,7 +490,7 @@ int main()
 			{
 				if (tankVector[i]->GetCollider().CheckIntersect(p.GetCollider()))
 				{
-					if (iFrame.getElapsedTime().asSeconds()>iFrameLength)
+					if (iFrame.getElapsedTime().asSeconds() > iFrameLength)
 					{
 						cout << "Taking damage from TANK" << endl;
 						p.takeDamage(tankVector[i]->meleeDamage());
@@ -485,7 +502,7 @@ int main()
 			{
 				if (vampireVector[i]->GetCollider().CheckIntersect(p.GetCollider()))
 				{
-					if (iFrame.getElapsedTime().asSeconds()>iFrameLength)
+					if (iFrame.getElapsedTime().asSeconds() > iFrameLength)
 					{
 						cout << "Taking damage from VAMPIRE" << endl;
 						p.takeDamage(vampireVector[i]->meleeDamage());
@@ -493,11 +510,11 @@ int main()
 					}
 				}
 			}
-			for (size_t i=0;i<casterVector.size();i++)
+			for (size_t i = 0; i < casterVector.size(); i++)
 			{
-				for (size_t b=0;b<casterVector[i]->bulletVectorSize();b++)
+				for (size_t b = 0; b < casterVector[i]->bulletVectorSize(); b++)
 				{
-					if(casterVector[i]->bulletCollision(p.GetCollider(),b,0.0f))
+					if (casterVector[i]->bulletCollision(p.GetCollider(), b, 0.0f))
 					{
 						casterVector[i]->setBulletPosition(b);
 						if (iFrame.getElapsedTime().asSeconds() > iFrameLength)
@@ -538,19 +555,19 @@ int main()
 			}
 
 			//Kill Minion
-			for (size_t i=0;i<tankVector.size();i++)
+			for (size_t i = 0; i < tankVector.size(); i++)
 			{
-				if (tankVector[i]->isDead(rw,deltaTime))
+				if (tankVector[i]->isDead(rw, deltaTime))
 				{
 					score.updateScore(tankVector[i]->killScore());
 					p.increaseKillCount();
 					cout << "TANK " << i << " HAS BEEN KILLED!" << endl;
-					if (tankVector.size()>1)
+					if (tankVector.size() > 1)
 					{
 						Tank* tankPointer;
 						tankPointer = tankVector.at(i);
 						delete tankPointer;
-						tankVector.erase(tankVector.begin()+i);
+						tankVector.erase(tankVector.begin() + i);
 					}
 					else
 					{
@@ -563,7 +580,7 @@ int main()
 			}
 			for (size_t i = 0; i < vampireVector.size(); i++)
 			{
-				if (vampireVector[i]->isDead(rw,deltaTime))
+				if (vampireVector[i]->isDead(rw, deltaTime))
 				{
 					score.updateScore(vampireVector[i]->killScore());
 					p.increaseKillCount();
@@ -611,7 +628,7 @@ int main()
 
 
 			//OUT OF BOUND DELETE
-			for (size_t i=0;i<p.bulletVectorSize();i++)
+			for (size_t i = 0; i < p.bulletVectorSize(); i++)
 			{
 				if (p.getBulletPosition(i).x > rw.getSize().x || p.getBulletPosition(i).y > rw.getSize().y || p.getBulletPosition(i).x < 0 || p.getBulletPosition(i).y < 0)
 				{
@@ -627,9 +644,9 @@ int main()
 					}
 				}
 			}
-			for (size_t i=0;i<casterVector.size();i++)
+			for (size_t i = 0; i < casterVector.size(); i++)
 			{
-				for (size_t b=0;b<casterVector[i]->bulletVectorSize();b++)
+				for (size_t b = 0; b < casterVector[i]->bulletVectorSize(); b++)
 				{
 					if (casterVector[i]->getBulletPosition(b).x > rw.getSize().x || casterVector[i]->getBulletPosition(b).y > rw.getSize().y || casterVector[i]->getBulletPosition(b).x < 0 || casterVector[i]->getBulletPosition(b).y < 0)
 					{
@@ -660,7 +677,7 @@ int main()
 			}
 			for (size_t i = 0; i < casterVector.size(); i++)
 			{
-				casterVector[i]->Draw(rw,deltaTime);
+				casterVector[i]->Draw(rw, deltaTime);
 				casterVector[i]->Update(deltaTime, rw, p);
 			}
 			p.Update(deltaTime, rw);
@@ -674,20 +691,20 @@ int main()
 			*/
 
 			//IF WIN: Level++
-			if (p.getKillCount()>=lvl[0].minionSum)
+			if (p.getKillCount() >= lvl[0].minionSum)
 			{
-				cout << "Win" << endl;
-				win = true;
+				//win = true;
 				score.updateScore(2000);
 				p.manualWalkSoundStop();
+				p.resetStat();
 				tankVector.clear();
 				vampireVector.clear();
 				casterVector.clear();
-				gameState = 99;//Next level
+				gameState = 1001;//Next wating level
 			}
-			
+
 			//IF LOSE: GO TO ENTER SCORE SCREEN
-			if (p.isDead(rw,deltaTime))
+			if (p.isDead(rw, deltaTime))
 			{
 				cout << "You died" << endl;
 				win = false;
@@ -695,11 +712,722 @@ int main()
 			}
 		}
 
+		else if (gameState == 1001)
+		{
+			levelName.setString("Vampire will (never) hurt you");
+			levelName.setOrigin(levelName.getGlobalBounds().width / 2, levelName.getGlobalBounds().height / 2);
+			levelName.setPosition(-35 + RWWIDTH / 2, -20 + RWHEIGHT / 2);
+			rw.draw(levelName);
+			if (e.type == Event::KeyReleased)
+			{
+				if (e.key.code == Keyboard::Q)
+				{
+					gameState = 2;
+				}
+			}
+		}
+		else if (gameState == 2)
+		{
+			if (e.type == Event::KeyReleased)//Pause button
+			{
+				if (e.key.code == Keyboard::Escape)
+				{
+					gameState = -2;
+					cout << "Pause" << endl;
+				}
+			}
+
+			//auto spawning
+			totalTime += deltaTime;
+			if (totalTime >= spawnTime)
+			{
+				int randomNumber = 1 + ((int)rand() % 3);
+				if (randomNumber == 1)
+				{
+					if (slvl[1].tank++ < lvl[1].tankNO)
+						tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
+					else if (slvl[1].vampire++ < lvl[1].vampireNO)
+						vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
+					else if (slvl[1].caster++ < lvl[1].casterNO)
+						casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
+				}
+				if (randomNumber == 2)
+				{
+					if (slvl[1].vampire++ < lvl[1].vampireNO)
+						vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
+					else if (slvl[1].tank++ < lvl[1].tankNO)
+						tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
+					else if (slvl[1].caster++ < lvl[1].casterNO)
+						casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
+				}
+				if (randomNumber == 3)
+				{
+					if (slvl[1].caster++ < lvl[1].casterNO)
+						casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
+					else if (slvl[1].tank++ < lvl[1].tankNO)
+						tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
+					else if (slvl[1].vampire++ < lvl[1].vampireNO)
+						vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
+				}
+				totalTime = 0;
+			}
 
 
 
+			rw.draw(bg);
+			//OOB COLLISION
+			for (size_t i = 0; i < wallVector.size(); i++)//Player OOB
+			{
+				wallVector[i].GetCollider().CheckCollision(p.GetCollider(), 1.0f);
+			}
+			for (size_t i = 0; i < tankVector.size(); i++)//Tank OOB
+			{
+				for (size_t j = 0; j < wallVector.size(); j++)
+				{
+					wallVector[j].GetCollider().CheckCollision(tankVector[i]->GetCollider(), 1.0f);
+				}
+			}
+			for (size_t i = 0; i < vampireVector.size(); i++)//Vampire OOB
+			{
+				for (size_t j = 0; j < wallVector.size(); j++)
+				{
+					wallVector[j].GetCollider().CheckCollision(vampireVector[i]->GetCollider(), 1.0f);
+				}
+			}
+			for (size_t i = 0; i < casterVector.size(); i++)//Caster OOB
+			{
+				for (size_t j = 0; j < wallVector.size(); j++)
+				{
+					wallVector[j].GetCollider().CheckCollision(casterVector[i]->GetCollider(), 1.0f);
+				}
+			}
+
+
+
+
+			//COLLISION
+			for (size_t i = 0; i < p.bulletVectorSize(); i++)//Bullet-Tank collision
+			{
+				for (size_t j = 0; j < tankVector.size(); j++)
+				{
+					if (p.bulletCollision(tankVector[j]->GetCollider(), i, 0.0f))
+					{
+						cout << "Shot the Tank!" << endl;
+						p.setBulletPosition(i);
+						tankVector[j]->takeDamage(p.bulletDamage());
+					}
+				}
+			}
+			for (size_t i = 0; i < p.bulletVectorSize(); i++)//Bullet-Vampire collision
+			{
+				for (size_t j = 0; j < vampireVector.size(); j++)
+				{
+					if (p.bulletCollision(vampireVector[j]->GetCollider(), i, 0.0f))
+					{
+						cout << "Shot the Vampire!" << endl;
+						p.setBulletPosition(i);
+						vampireVector[j]->takeDamage(p.bulletDamage());
+					}
+				}
+			}
+			for (size_t i = 0; i < p.bulletVectorSize(); i++)//Bullet-Caster collision
+			{
+				for (size_t j = 0; j < casterVector.size(); j++)
+				{
+					if (p.bulletCollision(casterVector[j]->GetCollider(), i, 0.0f))
+					{
+						cout << "Shot the Caster!" << endl;
+						p.setBulletPosition(i);
+						casterVector[j]->takeDamage(p.bulletDamage());
+					}
+				}
+			}
+
+			//TAKING DAMAGE
+			for (size_t i = 0; i < tankVector.size(); i++)//Tank-Player Punch Intersect
+			{
+				if (tankVector[i]->GetCollider().CheckIntersect(p.GetCollider()))
+				{
+					if (iFrame.getElapsedTime().asSeconds() > iFrameLength)
+					{
+						cout << "Taking damage from TANK" << endl;
+						p.takeDamage(tankVector[i]->meleeDamage());
+						iFrame.restart();
+					}
+				}
+			}
+			for (size_t i = 0; i < vampireVector.size(); i++)//Vampire-Player Punch Intersect
+			{
+				if (vampireVector[i]->GetCollider().CheckIntersect(p.GetCollider()))
+				{
+					if (iFrame.getElapsedTime().asSeconds() > iFrameLength)
+					{
+						cout << "Taking damage from VAMPIRE" << endl;
+						p.takeDamage(vampireVector[i]->meleeDamage());
+						iFrame.restart();
+					}
+				}
+			}
+			for (size_t i = 0; i < casterVector.size(); i++)
+			{
+				for (size_t b = 0; b < casterVector[i]->bulletVectorSize(); b++)
+				{
+					if (casterVector[i]->bulletCollision(p.GetCollider(), b, 0.0f))
+					{
+						casterVector[i]->setBulletPosition(b);
+						if (iFrame.getElapsedTime().asSeconds() > iFrameLength)
+						{
+							cout << "Taking damage from CASTER" << endl;
+							p.takeDamage(casterVector[i]->bulletDamage());
+							iFrame.restart();
+						}
+					}
+				}
+			}
+
+
+			//PUNCH INTERSECTION
+			for (size_t i = 0; i < tankVector.size(); i++)//Player-Tank Punch Intersect
+			{
+				if (p.GetPunchCollider().CheckIntersect(tankVector[i]->GetCollider()) && p.punching())
+				{
+					cout << "Punch Tank!" << endl;
+					tankVector[i]->takeDamage(p.meleeDamage());
+				}
+			}
+			for (size_t i = 0; i < vampireVector.size(); i++)//Player-Vampire Punch Intersect
+			{
+				if (p.GetPunchCollider().CheckIntersect(vampireVector[i]->GetCollider()) && p.punching())
+				{
+					cout << "Punch Vampire!" << endl;
+					vampireVector[i]->takeDamage(p.meleeDamage());
+				}
+			}
+			for (size_t i = 0; i < casterVector.size(); i++)//Player-Caster Punch Intersect
+			{
+				if (p.GetPunchCollider().CheckIntersect(casterVector[i]->GetCollider()) && p.punching())
+				{
+					cout << "Punch Caster!" << endl;
+					casterVector[i]->takeDamage(p.meleeDamage());
+				}
+			}
+
+			//Kill Minion
+			for (size_t i = 0; i < tankVector.size(); i++)
+			{
+				if (tankVector[i]->isDead(rw, deltaTime))
+				{
+					score.updateScore(tankVector[i]->killScore());
+					p.increaseKillCount();
+					cout << "TANK " << i << " HAS BEEN KILLED!" << endl;
+					if (tankVector.size() > 1)
+					{
+						Tank* tankPointer;
+						tankPointer = tankVector.at(i);
+						delete tankPointer;
+						tankVector.erase(tankVector.begin() + i);
+					}
+					else
+					{
+						cout << "ALL TANK ARE DEAD!" << endl;
+						tankVector.clear();
+						break;
+					}
+
+				}
+			}
+			for (size_t i = 0; i < vampireVector.size(); i++)
+			{
+				if (vampireVector[i]->isDead(rw, deltaTime))
+				{
+					score.updateScore(vampireVector[i]->killScore());
+					p.increaseKillCount();
+					cout << "VAMPIRE " << i << " HAS BEEN KILLED!" << endl;
+					if (vampireVector.size() > 1)
+					{
+						Vampire* vampirePointer;
+						vampirePointer = vampireVector.at(i);
+						delete vampirePointer;
+						vampireVector.erase(vampireVector.begin() + i);
+					}
+					else
+					{
+						cout << "ALL VAMPIRE ARE DEAD!" << endl;
+						vampireVector.clear();
+						break;
+					}
+
+				}
+			}
+			for (size_t i = 0; i < casterVector.size(); i++)
+			{
+				if (casterVector[i]->isDead(rw, deltaTime))
+				{
+					score.updateScore(casterVector[i]->killScore());
+					p.increaseKillCount();
+					cout << "CASTER " << i << " HAS BEEN KILLED!" << endl;
+					if (casterVector.size() > 1)
+					{
+						Caster* casterPointer;
+						casterPointer = casterVector.at(i);
+						delete casterPointer;
+						casterVector.erase(casterVector.begin() + i);
+					}
+					else
+					{
+						cout << "ALL CASTER ARE DEAD!" << endl;
+						casterVector.clear();
+						break;
+					}
+
+				}
+			}
+
+
+
+			//OUT OF BOUND DELETE
+			for (size_t i = 0; i < p.bulletVectorSize(); i++)
+			{
+				if (p.getBulletPosition(i).x > rw.getSize().x || p.getBulletPosition(i).y > rw.getSize().y || p.getBulletPosition(i).x < 0 || p.getBulletPosition(i).y < 0)
+				{
+					cout << p.getBulletPosition(i).x << "   " << p.getBulletPosition(i).y << endl;
+					if (p.bulletVectorSize() > 1)
+					{
+						p.eraseBullet(i);
+					}
+					else
+					{
+						p.clearBulletVector();
+						cout << "Clear the vector" << endl;
+					}
+				}
+			}
+			for (size_t i = 0; i < casterVector.size(); i++)
+			{
+				for (size_t b = 0; b < casterVector[i]->bulletVectorSize(); b++)
+				{
+					if (casterVector[i]->getBulletPosition(b).x > rw.getSize().x || casterVector[i]->getBulletPosition(b).y > rw.getSize().y || casterVector[i]->getBulletPosition(b).x < 0 || casterVector[i]->getBulletPosition(b).y < 0)
+					{
+						if (casterVector[i]->bulletVectorSize() > 1)
+						{
+							casterVector[i]->eraseBullet(b);
+						}
+						else
+						{
+							casterVector[i]->clearBulletVector();
+							cout << "Clear the vector" << endl;
+						}
+					}
+				}
+			}
+
+
+			//Render & Update
+			for (size_t i = 0; i < tankVector.size(); i++)
+			{
+				tankVector[i]->Draw(rw);
+				tankVector[i]->Update(deltaTime, rw, p);
+			}
+			for (size_t i = 0; i < vampireVector.size(); i++)
+			{
+				vampireVector[i]->Draw(rw);
+				vampireVector[i]->Update(deltaTime, rw, p);
+			}
+			for (size_t i = 0; i < casterVector.size(); i++)
+			{
+				casterVector[i]->Draw(rw, deltaTime);
+				casterVector[i]->Update(deltaTime, rw, p);
+			}
+			p.Update(deltaTime, rw);
+			p.Draw(rw);
+			score.Draw(rw);
+
+			//IF WIN: Level++
+			if (p.getKillCount() >= lvl[1].minionSum)
+			{
+				//win = true;
+				score.updateScore(2000);
+				p.manualWalkSoundStop();
+				p.resetStat();
+				tankVector.clear();
+				vampireVector.clear();
+				casterVector.clear();
+				gameState = 1002;//Next wating level
+			}
+
+			//IF LOSE: GO TO ENTER SCORE SCREEN
+			if (p.isDead(rw, deltaTime))
+			{
+				cout << "You died" << endl;
+				win = false;
+				gameState = 99;//Score menu
+			}
+
+		}
+
+		else if (gameState == 1002)//Wait third level
+		{
+			levelName.setString("100 Evil Souls");
+			levelName.setOrigin(levelName.getGlobalBounds().width / 2, levelName.getGlobalBounds().height / 2);
+			levelName.setPosition(-35 + RWWIDTH / 2, -20 + RWHEIGHT / 2);
+			rw.draw(levelName);
+			if (e.type == Event::KeyReleased)
+			{
+				if (e.key.code == Keyboard::Q)
+				{
+					gameState = 3;
+				}
+			}
+		}
+		else if (gameState==3)
+		{
+		if (e.type == Event::KeyReleased)//Pause button
+		{
+			if (e.key.code == Keyboard::Escape)
+			{
+				gameState = -2;
+				cout << "Pause" << endl;
+			}
+		}
+
+		//auto spawning
+		totalTime += deltaTime;
+		if (totalTime >= spawnTime)
+		{
+			int randomNumber = 1 + ((int)rand() % 3);
+			if (randomNumber == 1)
+			{
+				if (slvl[2].tank++ < lvl[2].tankNO)
+					tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
+				else if (slvl[2].vampire++ < lvl[2].vampireNO)
+					vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
+				else if (slvl[2].caster++ < lvl[2].casterNO)
+					casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
+			}
+			if (randomNumber == 2)
+			{
+				if (slvl[2].vampire++ < lvl[2].vampireNO)
+					vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
+				else if (slvl[2].tank++ < lvl[2].tankNO)
+					tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
+				else if (slvl[2].caster++ < lvl[2].casterNO)
+					casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
+			}
+			if (randomNumber == 3)
+			{
+				if (slvl[2].caster++ < lvl[2].casterNO)
+					casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
+				else if (slvl[2].tank++ < lvl[2].tankNO)
+					tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
+				else if (slvl[2].vampire++ < lvl[2].vampireNO)
+					vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
+			}
+			totalTime = 0;
+		}
+
+
+
+		rw.draw(bg);
+		//OOB COLLISION
+		for (size_t i = 0; i < wallVector.size(); i++)//Player OOB
+		{
+			wallVector[i].GetCollider().CheckCollision(p.GetCollider(), 1.0f);
+		}
+		for (size_t i = 0; i < tankVector.size(); i++)//Tank OOB
+		{
+			for (size_t j = 0; j < wallVector.size(); j++)
+			{
+				wallVector[j].GetCollider().CheckCollision(tankVector[i]->GetCollider(), 1.0f);
+			}
+		}
+		for (size_t i = 0; i < vampireVector.size(); i++)//Vampire OOB
+		{
+			for (size_t j = 0; j < wallVector.size(); j++)
+			{
+				wallVector[j].GetCollider().CheckCollision(vampireVector[i]->GetCollider(), 1.0f);
+			}
+		}
+		for (size_t i = 0; i < casterVector.size(); i++)//Caster OOB
+		{
+			for (size_t j = 0; j < wallVector.size(); j++)
+			{
+				wallVector[j].GetCollider().CheckCollision(casterVector[i]->GetCollider(), 1.0f);
+			}
+		}
+
+
+
+
+		//COLLISION
+		for (size_t i = 0; i < p.bulletVectorSize(); i++)//Bullet-Tank collision
+		{
+			for (size_t j = 0; j < tankVector.size(); j++)
+			{
+				if (p.bulletCollision(tankVector[j]->GetCollider(), i, 0.0f))
+				{
+					cout << "Shot the Tank!" << endl;
+					p.setBulletPosition(i);
+					tankVector[j]->takeDamage(p.bulletDamage());
+				}
+			}
+		}
+		for (size_t i = 0; i < p.bulletVectorSize(); i++)//Bullet-Vampire collision
+		{
+			for (size_t j = 0; j < vampireVector.size(); j++)
+			{
+				if (p.bulletCollision(vampireVector[j]->GetCollider(), i, 0.0f))
+				{
+					cout << "Shot the Vampire!" << endl;
+					p.setBulletPosition(i);
+					vampireVector[j]->takeDamage(p.bulletDamage());
+				}
+			}
+		}
+		for (size_t i = 0; i < p.bulletVectorSize(); i++)//Bullet-Caster collision
+		{
+			for (size_t j = 0; j < casterVector.size(); j++)
+			{
+				if (p.bulletCollision(casterVector[j]->GetCollider(), i, 0.0f))
+				{
+					cout << "Shot the Caster!" << endl;
+					p.setBulletPosition(i);
+					casterVector[j]->takeDamage(p.bulletDamage());
+				}
+			}
+		}
+
+		//TAKING DAMAGE
+		for (size_t i = 0; i < tankVector.size(); i++)//Tank-Player Punch Intersect
+		{
+			if (tankVector[i]->GetCollider().CheckIntersect(p.GetCollider()))
+			{
+				if (iFrame.getElapsedTime().asSeconds() > iFrameLength)
+				{
+					cout << "Taking damage from TANK" << endl;
+					p.takeDamage(tankVector[i]->meleeDamage());
+					iFrame.restart();
+				}
+			}
+		}
+		for (size_t i = 0; i < vampireVector.size(); i++)//Vampire-Player Punch Intersect
+		{
+			if (vampireVector[i]->GetCollider().CheckIntersect(p.GetCollider()))
+			{
+				if (iFrame.getElapsedTime().asSeconds() > iFrameLength)
+				{
+					cout << "Taking damage from VAMPIRE" << endl;
+					p.takeDamage(vampireVector[i]->meleeDamage());
+					iFrame.restart();
+				}
+			}
+		}
+		for (size_t i = 0; i < casterVector.size(); i++)
+		{
+			for (size_t b = 0; b < casterVector[i]->bulletVectorSize(); b++)
+			{
+				if (casterVector[i]->bulletCollision(p.GetCollider(), b, 0.0f))
+				{
+					casterVector[i]->setBulletPosition(b);
+					if (iFrame.getElapsedTime().asSeconds() > iFrameLength)
+					{
+						cout << "Taking damage from CASTER" << endl;
+						p.takeDamage(casterVector[i]->bulletDamage());
+						iFrame.restart();
+					}
+				}
+			}
+		}
+
+
+		//PUNCH INTERSECTION
+		for (size_t i = 0; i < tankVector.size(); i++)//Player-Tank Punch Intersect
+		{
+			if (p.GetPunchCollider().CheckIntersect(tankVector[i]->GetCollider()) && p.punching())
+			{
+				cout << "Punch Tank!" << endl;
+				tankVector[i]->takeDamage(p.meleeDamage());
+			}
+		}
+		for (size_t i = 0; i < vampireVector.size(); i++)//Player-Vampire Punch Intersect
+		{
+			if (p.GetPunchCollider().CheckIntersect(vampireVector[i]->GetCollider()) && p.punching())
+			{
+				cout << "Punch Vampire!" << endl;
+				vampireVector[i]->takeDamage(p.meleeDamage());
+			}
+		}
+		for (size_t i = 0; i < casterVector.size(); i++)//Player-Caster Punch Intersect
+		{
+			if (p.GetPunchCollider().CheckIntersect(casterVector[i]->GetCollider()) && p.punching())
+			{
+				cout << "Punch Caster!" << endl;
+				casterVector[i]->takeDamage(p.meleeDamage());
+			}
+		}
+
+		//Kill Minion
+		for (size_t i = 0; i < tankVector.size(); i++)
+		{
+			if (tankVector[i]->isDead(rw, deltaTime))
+			{
+				score.updateScore(tankVector[i]->killScore());
+				p.increaseKillCount();
+				cout << "TANK " << i << " HAS BEEN KILLED!" << endl;
+				if (tankVector.size() > 1)
+				{
+					Tank* tankPointer;
+					tankPointer = tankVector.at(i);
+					delete tankPointer;
+					tankVector.erase(tankVector.begin() + i);
+				}
+				else
+				{
+					cout << "ALL TANK ARE DEAD!" << endl;
+					tankVector.clear();
+					break;
+				}
+
+			}
+		}
+		for (size_t i = 0; i < vampireVector.size(); i++)
+		{
+			if (vampireVector[i]->isDead(rw, deltaTime))
+			{
+				score.updateScore(vampireVector[i]->killScore());
+				p.increaseKillCount();
+				cout << "VAMPIRE " << i << " HAS BEEN KILLED!" << endl;
+				if (vampireVector.size() > 1)
+				{
+					Vampire* vampirePointer;
+					vampirePointer = vampireVector.at(i);
+					delete vampirePointer;
+					vampireVector.erase(vampireVector.begin() + i);
+				}
+				else
+				{
+					cout << "ALL VAMPIRE ARE DEAD!" << endl;
+					vampireVector.clear();
+					break;
+				}
+
+			}
+		}
+		for (size_t i = 0; i < casterVector.size(); i++)
+		{
+			if (casterVector[i]->isDead(rw, deltaTime))
+			{
+				score.updateScore(casterVector[i]->killScore());
+				p.increaseKillCount();
+				cout << "CASTER " << i << " HAS BEEN KILLED!" << endl;
+				if (casterVector.size() > 1)
+				{
+					Caster* casterPointer;
+					casterPointer = casterVector.at(i);
+					delete casterPointer;
+					casterVector.erase(casterVector.begin() + i);
+				}
+				else
+				{
+					cout << "ALL CASTER ARE DEAD!" << endl;
+					casterVector.clear();
+					break;
+				}
+
+			}
+		}
+
+
+
+		//OUT OF BOUND DELETE
+		for (size_t i = 0; i < p.bulletVectorSize(); i++)
+		{
+			if (p.getBulletPosition(i).x > rw.getSize().x || p.getBulletPosition(i).y > rw.getSize().y || p.getBulletPosition(i).x < 0 || p.getBulletPosition(i).y < 0)
+			{
+				cout << p.getBulletPosition(i).x << "   " << p.getBulletPosition(i).y << endl;
+				if (p.bulletVectorSize() > 1)
+				{
+					p.eraseBullet(i);
+				}
+				else
+				{
+					p.clearBulletVector();
+					cout << "Clear the vector" << endl;
+				}
+			}
+		}
+		for (size_t i = 0; i < casterVector.size(); i++)
+		{
+			for (size_t b = 0; b < casterVector[i]->bulletVectorSize(); b++)
+			{
+				if (casterVector[i]->getBulletPosition(b).x > rw.getSize().x || casterVector[i]->getBulletPosition(b).y > rw.getSize().y || casterVector[i]->getBulletPosition(b).x < 0 || casterVector[i]->getBulletPosition(b).y < 0)
+				{
+					if (casterVector[i]->bulletVectorSize() > 1)
+					{
+						casterVector[i]->eraseBullet(b);
+					}
+					else
+					{
+						casterVector[i]->clearBulletVector();
+						cout << "Clear the vector" << endl;
+					}
+				}
+			}
+		}
+
+
+		//Render & Update
+		for (size_t i = 0; i < tankVector.size(); i++)
+		{
+			tankVector[i]->Draw(rw);
+			tankVector[i]->Update(deltaTime, rw, p);
+		}
+		for (size_t i = 0; i < vampireVector.size(); i++)
+		{
+			vampireVector[i]->Draw(rw);
+			vampireVector[i]->Update(deltaTime, rw, p);
+		}
+		for (size_t i = 0; i < casterVector.size(); i++)
+		{
+			casterVector[i]->Draw(rw, deltaTime);
+			casterVector[i]->Update(deltaTime, rw, p);
+		}
+		p.Update(deltaTime, rw);
+		p.Draw(rw);
+		score.Draw(rw);
+
+		//IF WIN: Level++
+		if (p.getKillCount() >= lvl[2].minionSum)
+		{
+			win = true;
+			score.updateScore(2000);
+			p.manualWalkSoundStop();
+			p.resetStat();
+			tankVector.clear();
+			vampireVector.clear();
+			casterVector.clear();
+			gameState = 1002;//Next wating level
+		}
+
+		//IF LOSE: GO TO ENTER SCORE SCREEN
+		if (p.isDead(rw, deltaTime))
+		{
+			cout << "You died" << endl;
+			win = false;
+			gameState = 99;//Score menu
+		}
+		}
+
+
+
+		
 		else if (gameState == 99)//End game state: Name+Score (NAME CAN'T EXCEED 10 LETTERS (field limit size)) TODO:DECORATE
 		{
+		for (int i=0;i<3;i++)
+		{
+			slvl[i].caster = 0;
+			slvl[i].tank = 0;
+			slvl[i].vampire = 0;
+		}
 		if (win)
 		{
 			rw.draw(highscoreBackground);
