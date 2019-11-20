@@ -165,7 +165,8 @@ HowToPlay::HowToPlay(float width, float height)
 	for (int i = 0; i < 7; i++)
 	{
 		key[i].setFont(font);
-		key[i].setFillColor(Color::Yellow);
+		key[i].setFillColor(Color::Black);
+		key[i].setCharacterSize(50);
 		key[i].setPosition(Vector2f(width / 3, (height / 8) * (i + 1)));
 	}
 	key[0].setString("W : Up");
@@ -176,7 +177,8 @@ HowToPlay::HowToPlay(float width, float height)
 	key[5].setString("Right Mouse Click : Shoot bullet");
 	key[6].setString("ESC : Quit to menu/Pause current game");
 
-	Texture tex;
+	/*
+	Texture tex;//DONT WORK IN HERE
 	if (!tex.loadFromFile("Scroll.png"))
 	{
 		cout << "Can't load SCROLL.PNG" << endl;
@@ -184,8 +186,7 @@ HowToPlay::HowToPlay(float width, float height)
 	bg.setTexture(tex);
 	bg.setTextureRect(IntRect(0, 0, tex.getSize().x, tex.getSize().y));
 	bg.setScale(Vector2f(RWWIDTH / bg.getGlobalBounds().width, RWHEIGHT / bg.getGlobalBounds().height));
-	bg.setOrigin(bg.getGlobalBounds().width/2,bg.getGlobalBounds().height/2);
-	bg.setPosition(RWWIDTH/2,RWHEIGHT/2);
+	*/
 	
 	
 }
@@ -196,7 +197,7 @@ HowToPlay::~HowToPlay()
 
 void HowToPlay::Draw(RenderWindow& rw)
 {
-	rw.draw(bg);
+	//rw.draw(bg);
 	for (int i=0;i<7;i++)
 	{
 		rw.draw(key[i]);

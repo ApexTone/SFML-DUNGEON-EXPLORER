@@ -430,6 +430,7 @@ bool Vampire::isDead(RenderWindow& rw,float deltaTime)
 Caster::Caster(Texture* texture, Vector2u imageCount, float switchTime, float speed) :
 	animation(texture,imageCount,switchTime)
 {
+	fireRateControl = 0;
 	srand((unsigned int)time(NULL));
 	this->speed = speed;
 	row = 0;
@@ -463,6 +464,7 @@ Caster::~Caster()
 
 void Caster::Update(float deltaTime, RenderWindow& rw, Player& p)
 {
+	fireRateControl++;
 	float dist = sqrt(pow(body.getPosition().x - p.getSkinPosition().x, 2) + pow(body.getPosition().y - p.getSkinPosition().y, 2));
 
 	Vector2f movement(0.0f, 0.0f);
@@ -525,7 +527,7 @@ void Caster::Update(float deltaTime, RenderWindow& rw, Player& p)
 		if (dist >= 600)//Track
 		{
 			float distX = fabs(body.getPosition().x - p.getSkinPosition().x), distY = fabs(body.getPosition().y - p.getSkinPosition().y);
-			if (distX >= 3)
+			if (distX >= 3 || distY >= 3)
 			{
 				if (body.getPosition().x < p.getSkinPosition().x)
 				{
@@ -535,9 +537,7 @@ void Caster::Update(float deltaTime, RenderWindow& rw, Player& p)
 				{
 					movement.x -= speed * deltaTime;
 				}
-			}
-			if (distY >= 3)
-			{
+
 				if (body.getPosition().y > p.getSkinPosition().y)
 				{
 					movement.y -= speed * deltaTime;
@@ -547,18 +547,27 @@ void Caster::Update(float deltaTime, RenderWindow& rw, Player& p)
 					movement.y += speed * deltaTime;
 				}
 			}
-		}
-		else//Shoot Bullet
-		{
-			if (GetCollider().CheckIntersect(p.GetCollider()) && abs(body.getPosition().y - p.GetPosition().y) < 20)
-			{
-				row = 3;//attack frame
-				movement = Vector2f(0, 0);
-				action = true;
-			}
 			else
 			{
 				action = false;
+			}
+		}
+		else//Shoot Bullet
+		{
+			if (fireRateControl>=120)//Fire 1/3 shot/sec
+			{
+				fireRateControl = 0;
+				row = 5;
+				//play sound
+				//action = true;
+				Vector2f aimDir;
+				aimDir = p.GetPosition() - body.getPosition();
+				aimDir = aimDir / sqrt(pow(aimDir.x,2)+pow(aimDir.y,2));
+
+				b.shape.setPosition(body.getPosition().x,body.getPosition().y);
+				b.currVelocity = aimDir * b.maxSpeed;
+				b.shape.setFillColor(Color::Red);
+				bulletVector.push_back(b);
 			}
 		}
 
@@ -598,16 +607,37 @@ void Caster::Update(float deltaTime, RenderWindow& rw, Player& p)
 		}
 	}
 
-	animation.Update(row, deltaTime, faceRight);//Update the animation
-	body.setTextureRect(animation.uvRect);
+	for (size_t i=0;i<bulletVector.size();i++)
+	{
+		bulletVector[i].shape.move(bulletVector[i].currVelocity);
+			if (bulletVector[i].shape.getPosition().x < 0 || bulletVector[i].shape.getPosition().y < 0 || bulletVector[i].shape.getPosition().x >= rw.getSize().x || bulletVector[i].shape.getPosition().y >= rw.getSize().y)
+			{
+				bulletVector.erase(bulletVector.begin() + i);
+			}
+	}
+
+		animation.Update(row, deltaTime, faceRight);//Update the animation
+		body.setTextureRect(animation.uvRect);
 
 	hitbox.move(movement);//move hitbox and apply body texture to it
 	body.setPosition(hitbox.getPosition());
 }
 
-void Caster::Draw(RenderWindow& rw)
+void Caster::Draw(RenderWindow& rw,float deltaTime)
 {	
 	//rw.draw(hitbox);
+	/*if (row == 5)
+	{
+		while (animation.playRow(row, deltaTime, faceRight))
+		{
+			body.setTextureRect(animation.uvRect);
+			rw.draw(body);
+		}
+	}
+	else
+	{
+		rw.draw(body);
+	}*/
 	rw.draw(body);
 	for (size_t i=0;i<bulletVector.size();i++)
 	{

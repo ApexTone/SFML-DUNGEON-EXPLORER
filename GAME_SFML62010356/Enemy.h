@@ -88,7 +88,7 @@ public:
 	//TODO:EDIT UPDATE FUNCTION
 	Collider GetCollider() { return Collider(hitbox); }
 	void Update(float deltaTime, RenderWindow& rw, Player& p);
-	void Draw(RenderWindow& rw);
+	void Draw(RenderWindow& rw,float deltaTime);
 	void resetStat();
 
 	bool bulletCollision(Collider other, int number, float force);
@@ -97,7 +97,7 @@ public:
 	void eraseBullet(int i) { bulletVector.erase(bulletVector.begin()+i); }
 	void clearBulletVector() { bulletVector.clear(); }
 	void setBulletPosition(int i, float a = 999999, float b = 999999) { bulletVector[i].shape.setPosition(Vector2f(a, b)); }
-
+	Vector2f getBulletPosition(int i) { return bulletVector[i].shape.getPosition(); }
 
 	void takeDamage(int damage);
 	int bulletDamage() { return 7; }
@@ -121,6 +121,7 @@ private:
 
 	Bullet b;
 	vector<Bullet> bulletVector;
+	int fireRateControl;
 
 	Clock iFrame;
 };

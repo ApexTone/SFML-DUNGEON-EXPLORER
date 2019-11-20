@@ -1,5 +1,5 @@
 99999,DEV
+20000,devtoo
 18000,yeesss
+18000,newgame
 11000,nice
-8500,testdev
-7800,dieeeeeee

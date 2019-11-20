@@ -9,7 +9,9 @@
 #include"Menu.h"
 #include"Enemy.h"
 #include"Score.h"
-//TODO:Decorate How To Play
+//TODO: ADD IFRAME OPACITY
+//TODO: FIX CASTER ANIMATION
+//TODO: Decorate How To Play
 //TODO: GIVE BUFF TO PLAYER: Health++,iFrame++,Damage++
 //Todo: GIVE BUFF TO ENEMIES: Speed++,Health++,Damage++,Fast Spawn
 
@@ -62,7 +64,7 @@ int main()
 	backgroundMusic.play();
 	backgroundMusic.setVolume(30);
 
-	float spawnTime=1.25f;
+	float spawnTime=1.5f;
 	float deltaTime = 0.0f,totalTime=0.0f;
 	Clock clk;
 
@@ -216,6 +218,21 @@ int main()
 	//The above highscore part must call every time
 
 
+
+
+
+
+	Sprite htpBG;
+	Texture htpTex;
+	if (!htpTex.loadFromFile("Scroll.png"))
+	{
+		cout << "Can't load SCROLL.PNG" << endl;
+	}
+	htpBG.setTexture(htpTex);
+	htpBG.setTextureRect(IntRect(20, 22, htpTex.getSize().x, htpTex.getSize().y));
+	htpBG.setScale(Vector2f(1.1*RWWIDTH / htpBG.getGlobalBounds().width, 1.1*RWHEIGHT / htpBG.getGlobalBounds().height));
+
+
 	//Game Loop
 	while (rw.isOpen())
 	{
@@ -289,6 +306,7 @@ int main()
 		}
 		else if (gameState==-1)//How to play TODO:DECORATE
 		{
+			rw.draw(htpBG);
 			htp.Draw(rw);
 			if (e.type == Event::KeyReleased)
 			{
@@ -349,23 +367,35 @@ int main()
 			if (totalTime>=spawnTime)
 			{
 				int randomNumber = 1+((int)rand()%3);
-				if (randomNumber==1 && slvl[0].tank++<lvl[0].tankNO)
+				if (randomNumber==1)
 				{
-					tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
+					if(slvl[0].tank++ < lvl[0].tankNO)
+						tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
+					else if(slvl[0].vampire++ < lvl[0].vampireNO)
+						vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
+					else if (slvl[0].caster++ < lvl[0].casterNO)
+						casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
 				}
-				else if (randomNumber==2 && slvl[0].vampire++ < lvl[0].vampireNO)
+				if (randomNumber==2)
 				{
-					vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
+					if(slvl[0].vampire++ < lvl[0].vampireNO)
+						vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
+					else if (slvl[0].tank++ < lvl[0].tankNO)
+						tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
+					else if (slvl[0].caster++ < lvl[0].casterNO)
+						casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
 				}
-				else if (randomNumber==3 && slvl[0].caster++ < lvl[0].casterNO)
+				if (randomNumber==3)
 				{
-					casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
+					if(slvl[0].caster++ < lvl[0].casterNO)
+						casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
+					else if (slvl[0].tank++ < lvl[0].tankNO)
+						tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
+					else if (slvl[0].vampire++ < lvl[0].vampireNO)
+						vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
 				}
 				totalTime = 0;
 			}
-
-
-
 
 
 
@@ -373,27 +403,27 @@ int main()
 			//OOB COLLISION
 			for (size_t i=0;i<wallVector.size();i++)//Player OOB
 			{
-				wallVector[i].GetCollider().CheckCollision(p.GetCollider(),0.0f);
+				wallVector[i].GetCollider().CheckCollision(p.GetCollider(),1.0f);
 			}
 			for (size_t i = 0; i < tankVector.size(); i++)//Tank OOB
 			{
 				for (size_t j=0;j<wallVector.size();j++)
 				{
-					wallVector[j].GetCollider().CheckCollision(tankVector[i]->GetCollider(),0.0f);
+					wallVector[j].GetCollider().CheckCollision(tankVector[i]->GetCollider(),1.0f);
 				}
 			}
 			for (size_t i = 0; i < vampireVector.size(); i++)//Vampire OOB
 			{
 				for (size_t j = 0; j < wallVector.size(); j++)
 				{
-					wallVector[j].GetCollider().CheckCollision(vampireVector[i]->GetCollider(), 0.0f);
+					wallVector[j].GetCollider().CheckCollision(vampireVector[i]->GetCollider(), 1.0f);
 				}
 			}
 			for (size_t i = 0; i < casterVector.size(); i++)//Caster OOB
 			{
 				for (size_t j = 0; j < wallVector.size(); j++)
 				{
-					wallVector[j].GetCollider().CheckCollision(casterVector[i]->GetCollider(), 0.0f);
+					wallVector[j].GetCollider().CheckCollision(casterVector[i]->GetCollider(), 1.0f);
 				}
 			}
 
@@ -463,7 +493,22 @@ int main()
 					}
 				}
 			}
-			//TODO:Caster-Player Bullet collision
+			for (size_t i=0;i<casterVector.size();i++)
+			{
+				for (size_t b=0;b<casterVector[i]->bulletVectorSize();b++)
+				{
+					if(casterVector[i]->bulletCollision(p.GetCollider(),b,0.0f))
+					{
+						casterVector[i]->setBulletPosition(b);
+						if (iFrame.getElapsedTime().asSeconds() > iFrameLength)
+						{
+							cout << "Taking damage from CASTER" << endl;
+							p.takeDamage(casterVector[i]->bulletDamage());
+							iFrame.restart();
+						}
+					}
+				}
+			}
 
 
 			//PUNCH INTERSECTION
@@ -582,6 +627,24 @@ int main()
 					}
 				}
 			}
+			for (size_t i=0;i<casterVector.size();i++)
+			{
+				for (size_t b=0;b<casterVector[i]->bulletVectorSize();b++)
+				{
+					if (casterVector[i]->getBulletPosition(b).x > rw.getSize().x || casterVector[i]->getBulletPosition(b).y > rw.getSize().y || casterVector[i]->getBulletPosition(b).x < 0 || casterVector[i]->getBulletPosition(b).y < 0)
+					{
+						if (casterVector[i]->bulletVectorSize() > 1)
+						{
+							casterVector[i]->eraseBullet(b);
+						}
+						else
+						{
+							casterVector[i]->clearBulletVector();
+							cout << "Clear the vector" << endl;
+						}
+					}
+				}
+			}
 
 
 			//Render & Update
@@ -597,22 +660,25 @@ int main()
 			}
 			for (size_t i = 0; i < casterVector.size(); i++)
 			{
-				casterVector[i]->Draw(rw);
+				casterVector[i]->Draw(rw,deltaTime);
 				casterVector[i]->Update(deltaTime, rw, p);
 			}
 			p.Update(deltaTime, rw);
 			p.Draw(rw);
 			score.Draw(rw);
-			/*for (size_t i=0;i<wallVector.size();i++)
+			/*
+			for (size_t i=0;i<wallVector.size();i++)
 			{
 				wallVector[i].Draw(rw);
-			}*/
+			}
+			*/
 
 			//IF WIN: Level++
 			if (p.getKillCount()>=lvl[0].minionSum)
 			{
 				cout << "Win" << endl;
 				win = true;
+				score.updateScore(2000);
 				p.manualWalkSoundStop();
 				tankVector.clear();
 				vampireVector.clear();
