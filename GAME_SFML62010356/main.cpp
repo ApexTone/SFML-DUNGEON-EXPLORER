@@ -2,13 +2,18 @@
 #include<SFML/Audio.hpp>
 #include<iostream>
 #include<fstream>
+#include<algorithm>
 #include"Animation.h"
 #include"Player.h"
 #include"Platform.h"
 #include"Menu.h"
 #include"Enemy.h"
 #include"Score.h"
+//TODO:Decorate How To Play
+//TODO: GIVE BUFF TO PLAYER: Health++,iFrame++,Damage++
+//Todo: GIVE BUFF TO ENEMIES: Speed++,Health++,Damage++,Fast Spawn
 
+bool sortinrev(const pair<int, string>& a, const pair<int, string>& b);//descending vector sort
 #define FRAMERATE 40 //DON'T CHANGE THIS VALUE AT ALL!
 #define RWWIDTH 1920
 #define RWHEIGHT 1080
@@ -16,14 +21,17 @@ using namespace std;
 using namespace sf;
 struct LevelControl
 {
-	unsigned int tankNO, casterNO, vampireNO;
-	unsigned int minionSum;
-}lvl[3];
-
-//enum state {MENU=0,PAUSE,HIGHSCORE,HOWTOPLAY,LEVEL1,LEVEL2,LEVEL3};
+	const unsigned int tankNO, casterNO, vampireNO;
+	const unsigned int minionSum;
+}lvl[3] = { {20,10,10,40},{20,15,20,55},{20,25,50,95} };
+struct Spawned
+{
+	unsigned int tank, caster, vampire;
+}slvl[3] = { {0,0,0},{0,0,0},{0,0,0} };
 
 int main()
 {
+	bool win = false;
 	RenderWindow rw(VideoMode(RWWIDTH, RWHEIGHT),"Dungeon Explorer 62010356", Style::Close | Style::Titlebar);
 	View view(Vector2f(0.0f,0.0f), Vector2f(RWWIDTH, RWHEIGHT));
 	rw.setFramerateLimit(FRAMERATE);
@@ -39,7 +47,11 @@ int main()
 	playerTex.setRepeated(true);//Prevent flicker
 	Player p(&playerTex, Vector2u(4, 6), 0.1f, 150.0f);
 	
-	//Platform plt(nullptr, Vector2f(400.0f, 200.0f), Vector2f(500.0f, 200.0f));
+	vector<Platform> wallVector;
+	wallVector.push_back(Platform(nullptr, Vector2f(RWWIDTH*3, 100),Vector2f(0,RWHEIGHT-20)));
+	wallVector.push_back(Platform(nullptr, Vector2f(RWWIDTH * 3, 40), Vector2f(0, 5)));
+	wallVector.push_back(Platform(nullptr, Vector2f(40, RWHEIGHT*3), Vector2f(RWWIDTH-20, 0)));
+	wallVector.push_back(Platform(nullptr, Vector2f(40, RWHEIGHT * 3), Vector2f(0, 5)));
 
 	Music backgroundMusic;
 	if (!backgroundMusic.openFromFile("Moonlight.wav"))
@@ -50,7 +62,8 @@ int main()
 	backgroundMusic.play();
 	backgroundMusic.setVolume(30);
 
-	float deltaTime = 0.0f;
+	float spawnTime=1.25f;
+	float deltaTime = 0.0f,totalTime=0.0f;
 	Clock clk;
 
 	Menu menu(RWWIDTH,RWHEIGHT);
@@ -65,7 +78,7 @@ int main()
 
 
 	Clock iFrame;
-	float enemyMeleeDelay = 1.5f;
+	const float iFrameLength = 1.0f;
 
 
 	Texture tankTexture;
@@ -112,55 +125,98 @@ int main()
 	Text playerNameText;
 	if (!font.loadFromFile("FiddlersCoveRegular-Mgge.otf"))
 	{
-		//cout << "Can't load font from file" << endl;
+		cout << "Can't load font from file" << endl;
 	}
 	playerNameText.setFillColor(Color::Black);
 	playerNameText.setFont(font);
 	playerNameText.setPosition(Vector2f(-142 + RWWIDTH / 2, -35+RWHEIGHT / 2));
 	playerNameText.setCharacterSize(60);
+	Text winText, loseText,ask4name;
+	winText.setFont(font);
+	winText.setCharacterSize(72);
+	winText.setFillColor(Color::White);
+	winText.setString("You've Won!");
+	winText.setOrigin(Vector2f(winText.getGlobalBounds().width/2,winText.getGlobalBounds().height/2));
+	winText.setPosition(Vector2f(-30+RWWIDTH/2,RWHEIGHT/10));
+	loseText.setFont(font);
+	loseText.setCharacterSize(72);
+	loseText.setFillColor(Color::White);
+	loseText.setString("You lose");
+	loseText.setOrigin(Vector2f(loseText.getGlobalBounds().width/2, loseText.getGlobalBounds().height/2));
+	loseText.setPosition(Vector2f(-25+RWWIDTH / 2, RWHEIGHT / 10));
+	ask4name.setFont(font);
+	ask4name.setCharacterSize(72);
+	ask4name.setString("Your name right here!");
+	ask4name.setFillColor(Color::White);
+	ask4name.setOrigin(Vector2f(ask4name.getGlobalBounds().width/2,ask4name.getGlobalBounds().height/2));
+	ask4name.setPosition(Vector2f(RWWIDTH/2,RWHEIGHT/3));
+	Texture lostTex;
+	if (!lostTex.loadFromFile("lost.png"))
+	{
+		cout << "can't load lost.png" << endl;
+	}
+	Sprite lostBG;
+	lostBG.setTexture(lostTex);
+	lostBG.setScale(Vector2f(1, RWHEIGHT / lostBG.getGlobalBounds().height));
 
 
-	map<unsigned int, string> highscoreMap;
+	Texture hsBgText;
+	RectangleShape backFrame;
+	backFrame.setFillColor(Color(130,0,0));
+	backFrame.setSize(Vector2f(1200,800));
+	backFrame.setOrigin(backFrame.getSize().x/2,backFrame.getSize().y/2);
+	backFrame.setPosition(60+RWWIDTH/2,30+RWHEIGHT/2);
+	if (!hsBgText.loadFromFile("HighscoreBackground.png"))
+	{
+		cout << "Can't load highscoreBackground texture"<< endl;
+	}
+	hsBgText.setRepeated(true);
+	Sprite highscoreBackground;
+	highscoreBackground.setTextureRect(IntRect(0,0,hsBgText.getSize().x,hsBgText.getSize().y));
+	highscoreBackground.setTexture(hsBgText);
+	highscoreBackground.setScale(Vector2f(RWWIDTH/ highscoreBackground.getGlobalBounds().width,RWHEIGHT/ highscoreBackground.getGlobalBounds().height));
 	ifstream highscoreReader;
 	highscoreReader.open("HighscoreFile.txt");
-	Text highscoreNameText[5],highscoreScoreText[5];
+	Text highscoreNameText[5],highscoreScoreText[5],highscoreTitle;
+	highscoreTitle.setFont(font);
+	highscoreTitle.setCharacterSize(72);
+	highscoreTitle.setString("---HIGHSCORE---");
+	highscoreTitle.setOrigin(highscoreTitle.getGlobalBounds().width,highscoreTitle.getGlobalBounds().height);
+	highscoreTitle.setFillColor(Color(43, 195, 94));
+	highscoreTitle.setPosition(250+RWWIDTH/2,50+RWHEIGHT/20);
 	for (int i=0;i<5;i++)
 	{
 		highscoreNameText[i].setFont(font);
-		highscoreNameText[i].setFillColor(Color::Yellow);
+		highscoreNameText[i].setFillColor(Color(43,195,94));
 		highscoreNameText[i].setCharacterSize(50);
 		highscoreNameText[i].setPosition(Vector2f((float)RWWIDTH/4,(float)RWHEIGHT/6*(i+1)));
 
 		highscoreScoreText[i].setFont(font);
-		highscoreScoreText[i].setFillColor(Color::Yellow);
+		highscoreScoreText[i].setFillColor(Color(43, 195, 94));
 		highscoreScoreText[i].setCharacterSize(50);
 		highscoreScoreText[i].setPosition(Vector2f((float)3*RWWIDTH / 4, (float)RWHEIGHT / 6 * (i + 1)));
 	}
+	vector<pair<int, string>> pairScoreName;
 	string line;
 	do
 	{
 		highscoreReader >> line;
-		string highscoreName = line.substr(0, line.find(','));
-		string highscoreScore = line.substr(line.find(',')+1,line.length());
-		highscoreMap[stoi(highscoreScore)] = highscoreName;
-		cout << highscoreMap[stoi(highscoreScore)] << "\t" <<highscoreScore << endl;
+		string highscoreScore = line.substr(0, line.find(','));
+		string highscoreName = line.substr(line.find(',')+1,line.length());
+		pairScoreName.push_back(make_pair(atoi(highscoreScore.c_str()),highscoreName));
 	} while (highscoreReader.good());//Read until EOF
-
-	map<unsigned int, string>::iterator iterMap=highscoreMap.begin();
-	for (iterMap = highscoreMap.begin(); iterMap != highscoreMap.end(); iterMap++) //Assign value
+	sort(pairScoreName.begin(), pairScoreName.end()-1, sortinrev);
+	for (size_t i=0;i<5;i++)
 	{
-		static int i = 4;
-		highscoreScoreText[i].setString(to_string(iterMap->first));
-		highscoreNameText[i--].setString(iterMap->second);
-		if (i==0)
-		{
-			break;
-		}
+		//cout << pairScoreName[i].first << "     " << pairScoreName[i].second << endl;
+		highscoreNameText[i].setString(pairScoreName[i].second);
+		highscoreScoreText[i].setString(to_string(pairScoreName[i].first));
 	}
 	highscoreReader.close();
 	//The above highscore part must call every time
 
 
+	//Game Loop
 	while (rw.isOpen())
 	{
 		deltaTime = clk.restart().asSeconds();
@@ -186,16 +242,16 @@ int main()
 				case Keyboard::Return:
 					switch (menu.getPressedItem())
 					{
-					case 0: //cout << "Start game" << endl; 
+					case 0: cout << "Start game" << endl; 
 						gameState = 1;//game start
 						break;
-					case 1:  //cout << "How to play menu" << endl; 
+					case 1:  cout << "How to play menu" << endl; 
 						gameState = -1;//How to play
 						break;
-					case 2: //cout << "Highscore menu" << endl; 
+					case 2: cout << "Highscore menu" << endl; 
 						gameState = -3;//Highscore
 						break;
-					case 3: //cout << "Exit game" << endl; 
+					case 3: cout << "Exit game" << endl; 
 						rw.close();
 					}
 					break;
@@ -204,6 +260,7 @@ int main()
 	
 		}
 		rw.clear(Color(100, 100, 100));
+		/*
 		//Spawning test
 		if (e.type == Event::KeyReleased)
 		{
@@ -220,6 +277,7 @@ int main()
 				casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
 			}
 		}
+		*/
 
 		if (gameState == 0)//Menu state
 		{
@@ -255,11 +313,15 @@ int main()
 		}
 		else if (gameState==-3)//Highscore
 		{
+			rw.draw(highscoreBackground);
+			rw.draw(backFrame);
+			rw.draw(highscoreTitle);
 			for (int i = 0; i < 5; i++)
 			{
 				rw.draw(highscoreScoreText[i]);
 				rw.draw(highscoreNameText[i]);
 			}
+			
 			if (e.type == Event::KeyReleased)
 			{
 				if (e.key.code == Keyboard::Escape)
@@ -270,6 +332,7 @@ int main()
 		}
 
 
+
 		else if (gameState == 1)//First Level
 		{
 			if (e.type == Event::KeyReleased)//Pause button
@@ -277,10 +340,64 @@ int main()
 				if (e.key.code == Keyboard::Escape)
 				{
 					gameState = -2;
-					//cout << "Pause" << endl;
+					cout << "Pause" << endl;
 				}
 			}
+
+			//auto spawning
+			totalTime += deltaTime;
+			if (totalTime>=spawnTime)
+			{
+				int randomNumber = 1+((int)rand()%3);
+				if (randomNumber==1 && slvl[0].tank++<lvl[0].tankNO)
+				{
+					tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
+				}
+				else if (randomNumber==2 && slvl[0].vampire++ < lvl[0].vampireNO)
+				{
+					vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
+				}
+				else if (randomNumber==3 && slvl[0].caster++ < lvl[0].casterNO)
+				{
+					casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
+				}
+				totalTime = 0;
+			}
+
+
+
+
+
+
 			rw.draw(bg);
+			//OOB COLLISION
+			for (size_t i=0;i<wallVector.size();i++)//Player OOB
+			{
+				wallVector[i].GetCollider().CheckCollision(p.GetCollider(),0.0f);
+			}
+			for (size_t i = 0; i < tankVector.size(); i++)//Tank OOB
+			{
+				for (size_t j=0;j<wallVector.size();j++)
+				{
+					wallVector[j].GetCollider().CheckCollision(tankVector[i]->GetCollider(),0.0f);
+				}
+			}
+			for (size_t i = 0; i < vampireVector.size(); i++)//Vampire OOB
+			{
+				for (size_t j = 0; j < wallVector.size(); j++)
+				{
+					wallVector[j].GetCollider().CheckCollision(vampireVector[i]->GetCollider(), 0.0f);
+				}
+			}
+			for (size_t i = 0; i < casterVector.size(); i++)//Caster OOB
+			{
+				for (size_t j = 0; j < wallVector.size(); j++)
+				{
+					wallVector[j].GetCollider().CheckCollision(casterVector[i]->GetCollider(), 0.0f);
+				}
+			}
+
+
 
 
 			//COLLISION
@@ -290,7 +407,7 @@ int main()
 				{
 					if (p.bulletCollision(tankVector[j]->GetCollider(), i, 0.0f))
 					{
-						//cout << "Shot the Tank!" << endl;
+						cout << "Shot the Tank!" << endl;
 						p.setBulletPosition(i);
 						tankVector[j]->takeDamage(p.bulletDamage());
 					}
@@ -302,7 +419,7 @@ int main()
 				{
 					if (p.bulletCollision(vampireVector[j]->GetCollider(), i, 0.0f))
 					{
-						//cout << "Shot the Vampire!" << endl;
+						cout << "Shot the Vampire!" << endl;
 						p.setBulletPosition(i);
 						vampireVector[j]->takeDamage(p.bulletDamage());
 					}
@@ -314,7 +431,7 @@ int main()
 				{
 					if (p.bulletCollision(casterVector[j]->GetCollider(), i, 0.0f))
 					{
-						//cout << "Shot the Caster!" << endl;
+						cout << "Shot the Caster!" << endl;
 						p.setBulletPosition(i);
 						casterVector[j]->takeDamage(p.bulletDamage());
 					}
@@ -326,16 +443,24 @@ int main()
 			{
 				if (tankVector[i]->GetCollider().CheckIntersect(p.GetCollider()))
 				{
-					//cout << "Taking damage from TANK" << endl;
-					p.takeDamage(tankVector[i]->meleeDamage());
+					if (iFrame.getElapsedTime().asSeconds()>iFrameLength)
+					{
+						cout << "Taking damage from TANK" << endl;
+						p.takeDamage(tankVector[i]->meleeDamage());
+						iFrame.restart();
+					}
 				}
 			}
 			for (size_t i = 0; i < vampireVector.size(); i++)//Vampire-Player Punch Intersect
 			{
 				if (vampireVector[i]->GetCollider().CheckIntersect(p.GetCollider()))
 				{
-					//cout << "Taking damage from VAMPIRE" << endl;
-					p.takeDamage(vampireVector[i]->meleeDamage());
+					if (iFrame.getElapsedTime().asSeconds()>iFrameLength)
+					{
+						cout << "Taking damage from VAMPIRE" << endl;
+						p.takeDamage(vampireVector[i]->meleeDamage());
+						iFrame.restart();
+					}
 				}
 			}
 			//TODO:Caster-Player Bullet collision
@@ -346,7 +471,7 @@ int main()
 			{
 				if (p.GetPunchCollider().CheckIntersect(tankVector[i]->GetCollider()) && p.punching())
 				{
-					//cout << "Punch Tank!" << endl;
+					cout << "Punch Tank!" << endl;
 					tankVector[i]->takeDamage(p.meleeDamage());
 				}
 			}
@@ -354,7 +479,7 @@ int main()
 			{
 				if (p.GetPunchCollider().CheckIntersect(vampireVector[i]->GetCollider()) && p.punching())
 				{
-					//cout << "Punch Vampire!" << endl;
+					cout << "Punch Vampire!" << endl;
 					vampireVector[i]->takeDamage(p.meleeDamage());
 				}
 			}
@@ -362,7 +487,7 @@ int main()
 			{
 				if (p.GetPunchCollider().CheckIntersect(casterVector[i]->GetCollider()) && p.punching())
 				{
-					//cout << "Punch Caster!" << endl;
+					cout << "Punch Caster!" << endl;
 					casterVector[i]->takeDamage(p.meleeDamage());
 				}
 			}
@@ -374,7 +499,7 @@ int main()
 				{
 					score.updateScore(tankVector[i]->killScore());
 					p.increaseKillCount();
-					//cout << "TANK " << i << " HAS BEEN KILLED!" << endl;
+					cout << "TANK " << i << " HAS BEEN KILLED!" << endl;
 					if (tankVector.size()>1)
 					{
 						Tank* tankPointer;
@@ -384,7 +509,7 @@ int main()
 					}
 					else
 					{
-						//cout << "ALL TANK ARE DEAD!" << endl;
+						cout << "ALL TANK ARE DEAD!" << endl;
 						tankVector.clear();
 						break;
 					}
@@ -397,7 +522,7 @@ int main()
 				{
 					score.updateScore(vampireVector[i]->killScore());
 					p.increaseKillCount();
-					//cout << "VAMPIRE " << i << " HAS BEEN KILLED!" << endl;
+					cout << "VAMPIRE " << i << " HAS BEEN KILLED!" << endl;
 					if (vampireVector.size() > 1)
 					{
 						Vampire* vampirePointer;
@@ -407,7 +532,7 @@ int main()
 					}
 					else
 					{
-						//cout << "ALL VAMPIRE ARE DEAD!" << endl;
+						cout << "ALL VAMPIRE ARE DEAD!" << endl;
 						vampireVector.clear();
 						break;
 					}
@@ -420,7 +545,7 @@ int main()
 				{
 					score.updateScore(casterVector[i]->killScore());
 					p.increaseKillCount();
-					//cout << "CASTER " << i << " HAS BEEN KILLED!" << endl;
+					cout << "CASTER " << i << " HAS BEEN KILLED!" << endl;
 					if (casterVector.size() > 1)
 					{
 						Caster* casterPointer;
@@ -430,7 +555,7 @@ int main()
 					}
 					else
 					{
-						//cout << "ALL CASTER ARE DEAD!" << endl;
+						cout << "ALL CASTER ARE DEAD!" << endl;
 						casterVector.clear();
 						break;
 					}
@@ -445,7 +570,7 @@ int main()
 			{
 				if (p.getBulletPosition(i).x > rw.getSize().x || p.getBulletPosition(i).y > rw.getSize().y || p.getBulletPosition(i).x < 0 || p.getBulletPosition(i).y < 0)
 				{
-					//cout << p.getBulletPosition(i).x << "   " << p.getBulletPosition(i).y << endl;
+					cout << p.getBulletPosition(i).x << "   " << p.getBulletPosition(i).y << endl;
 					if (p.bulletVectorSize() > 1)
 					{
 						p.eraseBullet(i);
@@ -453,7 +578,7 @@ int main()
 					else
 					{
 						p.clearBulletVector();
-						//cout << "Clear the vector" << endl;
+						cout << "Clear the vector" << endl;
 					}
 				}
 			}
@@ -478,27 +603,48 @@ int main()
 			p.Update(deltaTime, rw);
 			p.Draw(rw);
 			score.Draw(rw);
+			/*for (size_t i=0;i<wallVector.size();i++)
+			{
+				wallVector[i].Draw(rw);
+			}*/
 
 			//IF WIN: Level++
-			if (p.getKillCount()>20)
+			if (p.getKillCount()>=lvl[0].minionSum)
 			{
-				//cout << "Win" << endl;
+				cout << "Win" << endl;
+				win = true;
+				p.manualWalkSoundStop();
+				tankVector.clear();
+				vampireVector.clear();
+				casterVector.clear();
 				gameState = 99;//Next level
 			}
 			
 			//IF LOSE: GO TO ENTER SCORE SCREEN
 			if (p.isDead(rw,deltaTime))
 			{
-				//change gameState
-				//cout << "You died" << endl;
+				cout << "You died" << endl;
+				win = false;
 				gameState = 99;//Score menu
 			}
 		}
 
 
+
+
 		else if (gameState == 99)//End game state: Name+Score (NAME CAN'T EXCEED 10 LETTERS (field limit size)) TODO:DECORATE
 		{
-			cout << "End game" << endl;
+		if (win)
+		{
+			rw.draw(highscoreBackground);
+			rw.draw(winText);
+		}
+		else
+		{
+			rw.draw(lostBG);
+			rw.draw(loseText);
+		}
+		rw.draw(ask4name);
 			rw.draw(inputField);
 			if (blinkClock.getElapsedTime().asSeconds()>=0.5f)
 			{
@@ -518,14 +664,12 @@ int main()
 				{
 					lastChar = e.text.unicode;
 					playerName += lastChar;
-					//cout << playerName << endl;
 					playerNameText.setString(playerName);
 				}
 				else if (lastChar != e.text.unicode && e.text.unicode == 8 && playerName.length() > 0)//Delete letter
 				{
 					lastChar = e.text.unicode;
 					playerName.erase(playerName.length() - 1);
-					//cout << playerName << endl;
 					playerNameText.setString(playerName);
 				}
 			}
@@ -539,32 +683,41 @@ int main()
 			{
 				if (e.key.code == Keyboard::Return)
 				{
+					pairScoreName.push_back(make_pair(score.GetScore(),playerName));
+					sort(pairScoreName.begin(),pairScoreName.end(),sortinrev);
+					/*
+					cout << "--------------sorted vector-------" << endl;
+					for (size_t i = 0; i < 5; i++)//only write top 5 score
+					{
+						cout << pairScoreName[i].first << "," << pairScoreName[i].second << "\n";
+					}
+					*/
 					ofstream highscoreWriter;
-					highscoreWriter.open("HighscoreFile.txt",ios::out | ios::app);
-					highscoreWriter << playerName << "," << score.GetScore() << '\n';
+					highscoreWriter.open("HighscoreFile.txt");
+					for (size_t i = 0; i < 5; i++)//only write top 5 score
+					{
+						highscoreWriter << pairScoreName[i].first << "," << pairScoreName[i].second << "\n";
+					}
 					highscoreWriter.close();
 
 					highscoreReader.open("HighscoreFile.txt");
+					pairScoreName.clear();
 					do
 					{
 						highscoreReader >> line;
-						string highscoreName = line.substr(0, line.find(','));
-						string highscoreScore = line.substr(line.find(',') + 1, line.length());
-						highscoreMap[stoi(highscoreScore)] = highscoreName;
-						//cout << highscoreMap[stoi(highscoreScore)] << "\t" << highscoreScore << endl;
+						string highscoreScore = line.substr(0, line.find(','));
+						string highscoreName = line.substr(line.find(',') + 1, line.length());
+						pairScoreName.push_back(make_pair(atoi(highscoreScore.c_str()), highscoreName));
 					} while (highscoreReader.good());//Read until EOF
-
-					int i = 4;
-					for (iterMap = highscoreMap.begin(); iterMap != highscoreMap.end();iterMap++) //Assign value
-					{
-						highscoreScoreText[i].setString(to_string(iterMap->first));
-						highscoreNameText[i--].setString(iterMap->second);
-						if (i == 0)
-						{
-							break;
-						}
-					}
 					highscoreReader.close();
+					for (size_t i = 0; i < 5; i++)
+					{
+						cout << pairScoreName[i].first << "     " << pairScoreName[i].second << endl;
+						highscoreNameText[i].setString(pairScoreName[i].second);
+						highscoreScoreText[i].setString(to_string(pairScoreName[i].first));
+					}
+					playerName = "";
+					playerNameText.setString("");
 					score.resetStat();
 					gameState = 0;
 				}
@@ -573,4 +726,11 @@ int main()
 		rw.display();
 	}
 	return 0;
+}
+
+
+
+bool sortinrev(const pair<int, string>& a, const pair<int, string>& b) //Sort in descending order consider first element
+{
+	return (a.first > b.first);
 }

@@ -9,7 +9,7 @@ public:
 	Vector2f currVelocity;
 	float maxSpeed;
 
-	Bullet(float wid=10.0f,float hei=10.0f);
+	Bullet(float wid=15.0f,float hei=15.0f);
 	~Bullet();
 	void setBulletTexture(Texture *tex);
 	Collider getCollider() { return Collider(shape); }

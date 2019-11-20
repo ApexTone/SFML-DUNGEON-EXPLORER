@@ -34,6 +34,7 @@ public:
 
 	void Draw(RenderWindow &rw);
 private:
+	Sprite bg;
 	Font font;
 	Text key[7];
 };

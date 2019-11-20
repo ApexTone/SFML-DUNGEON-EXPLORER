@@ -22,9 +22,9 @@ public:
 	void Draw(RenderWindow& rw);
 	void resetStat();
 
-	void takeDamage(int damage) { health -= damage; }
+	void takeDamage(int damage);
 	int meleeDamage() { return 5; }
-	unsigned int killScore() { return 200; }
+	unsigned int killScore() { return 300; }
 	bool isDead(RenderWindow& rw,float deltaTime);
 private:
 	Randomizer random;
@@ -40,7 +40,9 @@ private:
 
 
 	bool action = false;
-	int health = 200;
+	int health = 150;
+
+	Clock iFrame;
 };
 
 class Vampire
@@ -54,9 +56,9 @@ public:
 	void Draw(RenderWindow& rw);
 	void resetStat();
 
-	void takeDamage(int damage) { health -= damage; }
+	void takeDamage(int damage);
 	int meleeDamage() { return 10; }
-	unsigned int killScore() { return 300; }
+	unsigned int killScore() { return 500; }
 	bool isDead(RenderWindow& rw, float deltaTime);
 private:
 	Randomizer random;
@@ -73,6 +75,8 @@ private:
 
 	bool action = false;
 	int health = 60;
+
+	Clock iFrame;
 };
 
 class Caster
@@ -95,9 +99,9 @@ public:
 	void setBulletPosition(int i, float a = 999999, float b = 999999) { bulletVector[i].shape.setPosition(Vector2f(a, b)); }
 
 
-	void takeDamage(int damage) { health -= damage; }
-	int bulletDamage() { return 20; }
-	unsigned int killScore() { return 400; }
+	void takeDamage(int damage);
+	int bulletDamage() { return 7; }
+	unsigned int killScore() { return 700; }
 	bool isDead(RenderWindow& rw, float deltaTime);
 private:
 	Randomizer random;
@@ -117,5 +121,7 @@ private:
 
 	Bullet b;
 	vector<Bullet> bulletVector;
+
+	Clock iFrame;
 };
 

@@ -125,24 +125,23 @@ void Player::Update(float deltaTime,RenderWindow& rw)
 	//Prevent out of bound
 	if (hitbox.getPosition().x - hitbox.getSize().x / 2 < 0)
 	{
-		cout << "OOB Left" << endl;
+		//cout << "OOB Left" << endl;
 		hitbox.setPosition(Vector2f(hitbox.getSize().x / 2, hitbox.getPosition().y));
 	}
 	if (hitbox.getPosition().x + hitbox.getSize().x / 2 > rw.getSize().x)
 	{
-		cout << "OOB Right" << endl;
-		hitbox.setPosition(Vector2f(hitbox.getPosition().x - hitbox.getSize().x / 2, hitbox.getPosition().y));
+		//cout << "OOB Right" << endl;
+		hitbox.setPosition(Vector2f(25+hitbox.getPosition().x - hitbox.getSize().x / 2, hitbox.getPosition().y));
 	}
 	if (hitbox.getPosition().y - hitbox.getSize().y / 2 < 0)
 	{
-		cout << "OOB Top" << endl;
+		//cout << "OOB Top" << endl;
 		hitbox.setPosition(Vector2f(hitbox.getPosition().x, hitbox.getSize().y / 2));
 	}
-	if (hitbox.getPosition().y + hitbox.getSize().y / 2 > rw.getSize().y)
+	if (hitbox.getPosition().y + hitbox.getSize().y > rw.getSize().y)
 	{
-		//cout << hitbox.getPosition().y + hitbox.getSize().y / 2 << endl;
-		cout << "OOB Bottom" << endl;
-		hitbox.setPosition(Vector2f(hitbox.getPosition().x, hitbox.getPosition().y - hitbox.getSize().y / 2));
+		//cout << "OOB Bottom" << endl;
+		hitbox.setPosition(Vector2f(hitbox.getPosition().x, 40+hitbox.getPosition().y - hitbox.getSize().y / 2));
 	}
 
 	fireRateControl++;
@@ -180,6 +179,7 @@ void Player::Update(float deltaTime,RenderWindow& rw)
 			b.shape.setPosition(body.getPosition().x, body.getPosition().y - 45);//Adjust bullet to gun point
 			b.currVelocity = aimDir * b.maxSpeed;
 			//cout << b.currVelocity.x << " " << b.currVelocity.y << endl;
+			b.shape.setFillColor(Color::White);
 			bullets.push_back(b);
 		}
 	}
@@ -320,8 +320,8 @@ bool Player::isDead(RenderWindow& rw, float deltaTime)
 			rw.draw(body);
 		}
 		hitbox.setPosition(999999.0f, 999999.0f);
+		walk.pause();
 		return true;
 	}
 	return false;
 }
-

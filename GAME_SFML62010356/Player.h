@@ -29,8 +29,8 @@ public:
 	void setBulletPosition(int i, float a = 999999, float b = 999999);
 
 	void takeDamage(int damage) { health -= damage; }
-	int bulletDamage() { return 15; }
-	int meleeDamage() { return 20; }
+	int bulletDamage() { return 20; }
+	int meleeDamage() { return 25; }
 	bool punching() { return isPunching; }
 
 	void increaseKillCount() { killCount++; }
@@ -40,6 +40,7 @@ public:
 	Vector2f getSkinPosition() { return body.getPosition(); }
 
 	bool isDead(RenderWindow& rw,float deltaTime);
+	void manualWalkSoundStop() { walk.pause(); }
 private:
 	RectangleShape hitbox;//Collision part
 	RectangleShape punchHitbox;

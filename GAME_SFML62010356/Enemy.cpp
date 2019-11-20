@@ -3,6 +3,7 @@
 Tank::Tank(Texture* texture, Vector2u imageCount, float switchTime, float speed): 
 	animation(texture,imageCount,switchTime)
 {
+	srand((unsigned int)time(NULL));
 	this->speed = speed;
 	row = 0;
 	faceRight = true;
@@ -10,7 +11,7 @@ Tank::Tank(Texture* texture, Vector2u imageCount, float switchTime, float speed)
 	const float xSize=120, ySize=120;
 
 	body.setSize(Vector2f(xSize, ySize));//set size of the minion (VARY FOR EACH MINION)
-	body.setPosition((float)(rand()%1800), (float)(rand()%900));//TODO: RANDOM STARTING POSITION
+	body.setPosition((float)(rand()%1800), (float)(rand()%900));
 	body.setOrigin(Vector2f(xSize / 2, ySize / 2));
 	body.setTexture(texture);
 
@@ -43,25 +44,25 @@ void Tank::Update(float deltaTime, RenderWindow& rw, Player &p)
 	//Prevent out of bound
 	if (hitbox.getPosition().x - hitbox.getSize().x / 2 < 0)
 	{
-		cout << "OOB Left" << endl;
+		//cout << "OOB Left" << endl;
 		hitbox.setPosition(Vector2f(hitbox.getSize().x / 2, hitbox.getPosition().y));
 	}
 	if (hitbox.getPosition().x + hitbox.getSize().x / 2 > rw.getSize().x)
 	{
-		cout << "OOB Right" << endl;
-		hitbox.setPosition(Vector2f(hitbox.getPosition().x - hitbox.getSize().x / 2, hitbox.getPosition().y));
+		//cout << "OOB Right" << endl;
+		hitbox.setPosition(Vector2f(25 + hitbox.getPosition().x - hitbox.getSize().x / 2, hitbox.getPosition().y));
 	}
 	if (hitbox.getPosition().y - hitbox.getSize().y / 2 < 0)
 	{
-		cout << "OOB Top" << endl;
+		//cout << "OOB Top" << endl;
 		hitbox.setPosition(Vector2f(hitbox.getPosition().x, hitbox.getSize().y / 2));
 	}
-	if (hitbox.getPosition().y + hitbox.getSize().y / 2 > rw.getSize().y)
+	if (hitbox.getPosition().y + hitbox.getSize().y > rw.getSize().y)
 	{
-		cout << hitbox.getPosition().y + hitbox.getSize().y / 2 << endl;
-		cout << "OOB Bottom" << endl;
-		hitbox.setPosition(Vector2f(hitbox.getPosition().x, hitbox.getPosition().y - hitbox.getSize().y / 2));
+		//cout << "OOB Bottom" << endl;
+		hitbox.setPosition(Vector2f(hitbox.getPosition().x, 40 + hitbox.getPosition().y - hitbox.getSize().y / 2));
 	}
+
 
 	if (++timeToRandom > 20)
 	{
@@ -70,7 +71,7 @@ void Tank::Update(float deltaTime, RenderWindow& rw, Player &p)
 	}
 
 
-	if (dist >= 300)//Out of tracking range
+	if (dist >= 800)//Out of tracking range
 	{
 		if (randomNumber == 0)
 		{
@@ -95,21 +96,28 @@ void Tank::Update(float deltaTime, RenderWindow& rw, Player &p)
 	}
 	else//Track player within range
 	{
-		if (body.getPosition().x<p.getSkinPosition().x)
+		float distX = fabs(body.getPosition().x - p.getSkinPosition().x),distY= fabs(body.getPosition().y - p.getSkinPosition().y);
+		if (distX>=3)
 		{
-			movement.x += speed * deltaTime;
+			if (body.getPosition().x < p.getSkinPosition().x)
+			{
+				movement.x += speed * deltaTime;
+			}
+			if (body.getPosition().x > p.getSkinPosition().x)
+			{
+				movement.x -= speed * deltaTime;
+			}
 		}
-		if (body.getPosition().x > p.getSkinPosition().x)
+		if (distY>=3)
 		{
-			movement.x -= speed * deltaTime;
-		}
-		if (body.getPosition().y > p.getSkinPosition().y)
-		{
-			movement.y -= speed * deltaTime;
-		}
-		if (body.getPosition().y < p.getSkinPosition().y)
-		{
-			movement.y += speed * deltaTime;
+			if (body.getPosition().y > p.getSkinPosition().y)
+			{
+				movement.y -= speed * deltaTime;
+			}
+			if (body.getPosition().y < p.getSkinPosition().y)
+			{
+				movement.y += speed * deltaTime;
+			}
 		}
 
 		if (GetCollider().CheckIntersect(p.GetCollider()) && abs(body.getPosition().y-p.GetPosition().y)<20)
@@ -180,6 +188,16 @@ void Tank::resetStat()
 	health = 200;
 }
 
+void Tank::takeDamage(int damage)
+{
+	const float iFrameLength = 0.1f;
+	if (iFrame.getElapsedTime().asSeconds()>=iFrameLength)
+	{
+		health -= damage;
+		iFrame.restart();
+	}
+}
+
 bool Tank::isDead(RenderWindow& rw, float deltaTime)//MUST USE DELTA TIME AND ONLY PLAY ONCE
 {
 	if (health<=0)
@@ -199,6 +217,7 @@ bool Tank::isDead(RenderWindow& rw, float deltaTime)//MUST USE DELTA TIME AND ON
 Vampire::Vampire(Texture* texture, Vector2u imageCount, float switchTime, float speed):
 	animation(texture, imageCount, switchTime)
 {
+	srand((unsigned int)time(NULL));
 	this->speed = speed;
 	row = 0;
 	faceRight = true;
@@ -238,25 +257,25 @@ void Vampire::Update(float deltaTime, RenderWindow& rw, Player& p)
 	//Prevent out of bound
 	if (hitbox.getPosition().x - hitbox.getSize().x / 2 < 0)
 	{
-		cout << "OOB Left" << endl;
+		//cout << "OOB Left" << endl;
 		hitbox.setPosition(Vector2f(hitbox.getSize().x / 2, hitbox.getPosition().y));
 	}
 	if (hitbox.getPosition().x + hitbox.getSize().x / 2 > rw.getSize().x)
 	{
-		cout << "OOB Right" << endl;
-		hitbox.setPosition(Vector2f(hitbox.getPosition().x - hitbox.getSize().x / 2, hitbox.getPosition().y));
+		//cout << "OOB Right" << endl;
+		hitbox.setPosition(Vector2f(25 + hitbox.getPosition().x - hitbox.getSize().x / 2, hitbox.getPosition().y));
 	}
 	if (hitbox.getPosition().y - hitbox.getSize().y / 2 < 0)
 	{
-		cout << "OOB Top" << endl;
+		//cout << "OOB Top" << endl;
 		hitbox.setPosition(Vector2f(hitbox.getPosition().x, hitbox.getSize().y / 2));
 	}
-	if (hitbox.getPosition().y + hitbox.getSize().y / 2 > rw.getSize().y)
+	if (hitbox.getPosition().y + hitbox.getSize().y > rw.getSize().y)
 	{
-		cout << hitbox.getPosition().y + hitbox.getSize().y / 2 << endl;
-		cout << "OOB Bottom" << endl;
-		hitbox.setPosition(Vector2f(hitbox.getPosition().x, hitbox.getPosition().y - hitbox.getSize().y / 2));
+		//cout << "OOB Bottom" << endl;
+		hitbox.setPosition(Vector2f(hitbox.getPosition().x, 40 + hitbox.getPosition().y - hitbox.getSize().y / 2));
 	}
+
 
 	if (++timeToRandom > 20)
 	{
@@ -265,7 +284,7 @@ void Vampire::Update(float deltaTime, RenderWindow& rw, Player& p)
 	}
 
 
-	if (dist >= 300)//Out of tracking range
+	if (dist >= 500)//Out of tracking range
 	{
 		if (randomNumber == 0)
 		{
@@ -290,21 +309,28 @@ void Vampire::Update(float deltaTime, RenderWindow& rw, Player& p)
 	}
 	else//Track player within range
 	{
-		if (body.getPosition().x < p.getSkinPosition().x)
+		float distX = fabs(body.getPosition().x - p.getSkinPosition().x), distY = fabs(body.getPosition().y - p.getSkinPosition().y);
+		if (distX >= 3)
 		{
-			movement.x += speed * deltaTime;
+			if (body.getPosition().x < p.getSkinPosition().x)
+			{
+				movement.x += speed * deltaTime;
+			}
+			if (body.getPosition().x > p.getSkinPosition().x)
+			{
+				movement.x -= speed * deltaTime;
+			}
 		}
-		if (body.getPosition().x > p.getSkinPosition().x)
+		if (distY >= 3)
 		{
-			movement.x -= speed * deltaTime;
-		}
-		if (body.getPosition().y > p.getSkinPosition().y)
-		{
-			movement.y -= speed * deltaTime;
-		}
-		if (body.getPosition().y < p.getSkinPosition().y)
-		{
-			movement.y += speed * deltaTime;
+			if (body.getPosition().y > p.getSkinPosition().y)
+			{
+				movement.y -= speed * deltaTime;
+			}
+			if (body.getPosition().y < p.getSkinPosition().y)
+			{
+				movement.y += speed * deltaTime;
+			}
 		}
 
 		if (GetCollider().CheckIntersect(p.GetCollider()) && abs(body.getPosition().y - p.GetPosition().y) < 20)
@@ -375,6 +401,16 @@ void Vampire::resetStat()
 	health = 60;
 }
 
+void Vampire::takeDamage(int damage)
+{
+	const float iFrameLength = 0.1f;
+	if (iFrame.getElapsedTime().asSeconds() >= iFrameLength)
+	{
+		health -= damage;
+		iFrame.restart();
+	}
+}
+
 bool Vampire::isDead(RenderWindow& rw,float deltaTime)
 {
 	if (health <= 0)
@@ -394,6 +430,7 @@ bool Vampire::isDead(RenderWindow& rw,float deltaTime)
 Caster::Caster(Texture* texture, Vector2u imageCount, float switchTime, float speed) :
 	animation(texture,imageCount,switchTime)
 {
+	srand((unsigned int)time(NULL));
 	this->speed = speed;
 	row = 0;
 	faceRight = true;
@@ -433,34 +470,34 @@ void Caster::Update(float deltaTime, RenderWindow& rw, Player& p)
 	//Prevent out of bound
 	if (hitbox.getPosition().x - hitbox.getSize().x / 2 < 0)
 	{
-		cout << "OOB Left" << endl;
+		//cout << "OOB Left" << endl;
 		hitbox.setPosition(Vector2f(hitbox.getSize().x / 2, hitbox.getPosition().y));
 	}
 	if (hitbox.getPosition().x + hitbox.getSize().x / 2 > rw.getSize().x)
 	{
-		cout << "OOB Right" << endl;
-		hitbox.setPosition(Vector2f(hitbox.getPosition().x - hitbox.getSize().x / 2, hitbox.getPosition().y));
+		//cout << "OOB Right" << endl;
+		hitbox.setPosition(Vector2f(25 + hitbox.getPosition().x - hitbox.getSize().x / 2, hitbox.getPosition().y));
 	}
 	if (hitbox.getPosition().y - hitbox.getSize().y / 2 < 0)
 	{
-		cout << "OOB Top" << endl;
+		//cout << "OOB Top" << endl;
 		hitbox.setPosition(Vector2f(hitbox.getPosition().x, hitbox.getSize().y / 2));
 	}
-	if (hitbox.getPosition().y + hitbox.getSize().y / 2 > rw.getSize().y)
+	if (hitbox.getPosition().y + hitbox.getSize().y > rw.getSize().y)
 	{
-		cout << hitbox.getPosition().y + hitbox.getSize().y / 2 << endl;
-		cout << "OOB Bottom" << endl;
-		hitbox.setPosition(Vector2f(hitbox.getPosition().x, hitbox.getPosition().y - hitbox.getSize().y / 2));
+		//cout << "OOB Bottom" << endl;
+		hitbox.setPosition(Vector2f(hitbox.getPosition().x, 40 + hitbox.getPosition().y - hitbox.getSize().y / 2));
 	}
 
-	if (++timeToRandom > 20)
+
+	if (++timeToRandom > 30)
 	{
 		randomNumber = 0 + (rand() % 6);//Randomizer don't work!
 		timeToRandom = 0;
 	}
 
 
-	if (dist >= 300)//Out of tracking range
+	if (dist >= 1000)//Out of tracking range
 	{
 		if (randomNumber == 0)
 		{
@@ -485,33 +522,47 @@ void Caster::Update(float deltaTime, RenderWindow& rw, Player& p)
 	}
 	else//Track player within range
 	{
-		if (body.getPosition().x < p.getSkinPosition().x)
+		if (dist >= 600)//Track
 		{
-			movement.x += speed * deltaTime;
+			float distX = fabs(body.getPosition().x - p.getSkinPosition().x), distY = fabs(body.getPosition().y - p.getSkinPosition().y);
+			if (distX >= 3)
+			{
+				if (body.getPosition().x < p.getSkinPosition().x)
+				{
+					movement.x += speed * deltaTime;
+				}
+				if (body.getPosition().x > p.getSkinPosition().x)
+				{
+					movement.x -= speed * deltaTime;
+				}
+			}
+			if (distY >= 3)
+			{
+				if (body.getPosition().y > p.getSkinPosition().y)
+				{
+					movement.y -= speed * deltaTime;
+				}
+				if (body.getPosition().y < p.getSkinPosition().y)
+				{
+					movement.y += speed * deltaTime;
+				}
+			}
 		}
-		if (body.getPosition().x > p.getSkinPosition().x)
+		else//Shoot Bullet
 		{
-			movement.x -= speed * deltaTime;
-		}
-		if (body.getPosition().y > p.getSkinPosition().y)
-		{
-			movement.y -= speed * deltaTime;
-		}
-		if (body.getPosition().y < p.getSkinPosition().y)
-		{
-			movement.y += speed * deltaTime;
+			if (GetCollider().CheckIntersect(p.GetCollider()) && abs(body.getPosition().y - p.GetPosition().y) < 20)
+			{
+				row = 3;//attack frame
+				movement = Vector2f(0, 0);
+				action = true;
+			}
+			else
+			{
+				action = false;
+			}
 		}
 
-		if (GetCollider().CheckIntersect(p.GetCollider()) && abs(body.getPosition().y - p.GetPosition().y) < 20)
-		{
-			row = 3;//attack frame
-			movement = Vector2f(0, 0);
-			action = true;
-		}
-		else
-		{
-			action = false;
-		}
+		
 	}
 
 
@@ -581,6 +632,16 @@ bool Caster::bulletCollision(Collider other, int number, float force)
 		return true;
 	}
 	return false;
+}
+
+void Caster::takeDamage(int damage)
+{
+	const float iFrameLength = 0.1f;
+	if (iFrame.getElapsedTime().asSeconds() >= iFrameLength)
+	{
+		health -= damage;
+		iFrame.restart();
+	}
 }
 
 bool Caster::isDead(RenderWindow& rw, float deltaTime)
