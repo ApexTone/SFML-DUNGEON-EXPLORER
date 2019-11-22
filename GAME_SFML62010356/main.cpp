@@ -232,7 +232,7 @@ int main()
 		highscoreScoreText[i].setString(to_string(pairScoreName[i].first));
 	}
 	highscoreReader.close();
-	//The above highscore part must call every time
+
 
 
 
@@ -1562,7 +1562,7 @@ int main()
 			score.Draw(rw);
 			if (e.type==Event::KeyReleased)
 			{
-				if (e.key.code == Keyboard::Return)
+				if (e.key.code == Keyboard::Return && playerName.length()>0)
 				{
 					pairScoreName.push_back(make_pair(score.GetScore(),playerName));
 					sort(pairScoreName.begin(),pairScoreName.end(),sortinrev);
