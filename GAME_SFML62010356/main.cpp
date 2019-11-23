@@ -751,7 +751,7 @@ int main()
 			{
 				//cout << "You died" << endl;
 				win = false;
-				gameState = 99;//Score menu
+				gameState = 1004;//Score menu
 			}
 		}
 
@@ -1118,7 +1118,7 @@ int main()
 			{
 				//cout << "You died" << endl;
 				win = false;
-				gameState = 99;//Score menu
+				gameState = 1004;//Score menu
 			}
 
 		}
@@ -1485,7 +1485,7 @@ int main()
 		{
 			//cout << "You died" << endl;
 			win = false;
-			gameState = 99;//Score menu
+			gameState = 1004;//Score menu
 		}
 		}
 
@@ -1493,7 +1493,7 @@ int main()
 		else if (gameState==1003)//Pre win end game
 		{
 		rw.draw(highscoreBackground);
-		levelName.setString("    You win!");
+		levelName.setString("    You Win!");
 		rw.draw(levelBackFrame);
 			//cout << "win state"<< endl;
 			rw.draw(levelName);
@@ -1507,6 +1507,23 @@ int main()
 				}
 			}
 		}
+		else if (gameState == 1004)//Pre lose end game
+		{
+		rw.draw(lostBG);
+		levelName.setString("    You Lose!");
+		rw.draw(levelBackFrame);
+		//cout << "win state"<< endl;
+		rw.draw(levelName);
+		rw.draw(pressQ);
+		if (e.type == Event::KeyReleased)
+		{
+			if (e.key.code == Keyboard::Q)
+			{
+				win = false;
+				gameState = 99;
+			}
+		}
+ }
 		else if (gameState == 99)//End game state: Name+Score (NAME CAN'T EXCEED 10 LETTERS (field limit size))
 		{
 		for (int i=0;i<3;i++)

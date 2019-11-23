@@ -1,5 +1,4 @@
-﻿  Player.cpp
-  main.cpp
+﻿  main.cpp
 C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(18,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
 C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(250,85): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
 C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(250,85): warning C4244:         with
@@ -12,8 +11,8 @@ C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(250,
 C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(250,39): warning C4244:             T=float
 C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(250,39): warning C4244:         ]
   Generating code
-  3 of 732 functions ( 0.4%) were compiled, the rest were copied from previous compilation.
+  1 of 726 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    16 functions had inline decision re-evaluated but remain unchanged
+    0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   GAME_SFML62010356.vcxproj -> C:\Users\Predator\source\repos\GAME_SFML62010356\Release\GAME_SFML62010356.exe
