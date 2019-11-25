@@ -43,7 +43,7 @@ public:
 	void manualWalkSoundStop() { walk.pause(); }
 
 	void healthBuff() { healthBar.setFillColor(Color::Blue); health = 200; maxHealth = 200; }
-	void damageBuff() { bulletDam = 40; meleeDam = 50; body.setFillColor(Color::Red); }
+	void damageBuff() { bulletDam = 30; meleeDam = 35; body.setFillColor(Color::Red); }
 private:
 	RectangleShape hitbox;//Collision part
 	RectangleShape punchHitbox;

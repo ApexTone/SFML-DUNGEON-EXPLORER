@@ -64,6 +64,11 @@ int main()
 	playerTex.loadFromFile("Player.png");
 	playerTex.setRepeated(true);//Prevent flicker
 	Player p(&playerTex, Vector2u(4, 6), 0.1f, 150.0f);
+	RectangleShape playerMenuModel;
+	playerMenuModel.setTexture(&playerTex);
+	playerMenuModel.setTextureRect(IntRect(0,0,playerTex.getSize().x/4,playerTex.getSize().y/6));
+	playerMenuModel.setSize(Vector2f(650,700));
+	playerMenuModel.setPosition(-750+RWWIDTH/2,-300+RWHEIGHT/2);
 	
 	vector<Platform> wallVector;
 	wallVector.push_back(Platform(nullptr, Vector2f(RWWIDTH*3, 100),Vector2f(0,RWHEIGHT-20)));
@@ -311,24 +316,6 @@ int main()
 
 		}
 		rw.clear(Color(100, 100, 100));
-		/*
-		//Spawning test
-		if (e.type == Event::KeyReleased)
-		{
-			if (e.key.code == Keyboard::O)
-			{
-				tankVector.push_back(new Tank(&tankTexture, Vector2u(4, 4), 0.1f, 60.0f));
-			}
-			if (e.key.code == Keyboard::U)
-			{
-				vampireVector.push_back(new Vampire(&vampireTexture, Vector2u(4, 4), 0.08f, 90.0f));
-			}
-			if (e.key.code == Keyboard::I)
-			{
-				casterVector.push_back(new Caster(&casterTexture, Vector2u(4, 4), 0.1f, 80.0f));
-			}
-		}
-		*/
 
 		if (gameState == 0)//Menu state
 		{
@@ -347,8 +334,9 @@ int main()
 			tankVector.clear();
 			casterVector.clear();
 			pressQ.setPosition(-20 + RWWIDTH / 2, -100 + 4 * RWHEIGHT / 6);
+			rw.draw(playerMenuModel);
 		}
-		else if (gameState == -1)//How to play TODO:DECORATE
+		else if (gameState == -1)//How to play
 		{
 			rw.draw(htpBG);
 			htp.Draw(rw);
