@@ -16,6 +16,7 @@ public:
 private:
 	Vector2u imageCount;//image in format of row X column
 	Vector2u currentImage;//current image position
+	Vector2u currentRowImage;
 
 	float totalTime;//Kinda like millis() in arduino
 	float switchTime;//Time per frame

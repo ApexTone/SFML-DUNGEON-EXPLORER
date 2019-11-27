@@ -165,11 +165,13 @@ void Tank::Update(float deltaTime, RenderWindow& rw, Player &p)
 		}
 	}
 
-	animation.Update(row, deltaTime, faceRight);//Update the animation
-	body.setTextureRect(animation.uvRect);
-
-	hitbox.move(movement);//move hitbox and apply body texture to it
-	body.setPosition(hitbox.getPosition());
+	if (health > 0)
+	{
+		animation.Update(row, deltaTime, faceRight);//Update the animation
+		body.setTextureRect(animation.uvRect);
+		hitbox.move(movement);//move hitbox and apply body texture to it
+		body.setPosition(hitbox.getPosition());
+	}
 }
 
 void Tank::Draw(RenderWindow& rw)
@@ -378,11 +380,13 @@ void Vampire::Update(float deltaTime, RenderWindow& rw, Player& p)
 		}
 	}
 
-	animation.Update(row, deltaTime, faceRight);//Update the animation
-	body.setTextureRect(animation.uvRect);
-
-	hitbox.move(movement);//move hitbox and apply body texture to it
-	body.setPosition(hitbox.getPosition());
+	if (health > 0)
+	{
+		animation.Update(row, deltaTime, faceRight);//Update the animation
+		body.setTextureRect(animation.uvRect);
+		hitbox.move(movement);//move hitbox and apply body texture to it
+		body.setPosition(hitbox.getPosition());
+	}
 }
 
 void Vampire::Draw(RenderWindow& rw)
@@ -616,10 +620,25 @@ void Caster::Update(float deltaTime, RenderWindow& rw, Player& p)
 			}
 	}
 
+	if (health > 0)
+	{
 		animation.Update(row, deltaTime, faceRight);//Update the animation
 		body.setTextureRect(animation.uvRect);
-
-	hitbox.move(movement);//move hitbox and apply body texture to it
+		hitbox.move(movement);//move hitbox and apply body texture to it
+	}
+	/*else
+	{
+		row = 2;
+		if (animation.playRow(row,deltaTime,faceRight))
+		{
+			animation.playRow(row, deltaTime, faceRight);
+			body.setTextureRect(animation.uvRect);
+		}
+		else
+		{
+			hitbox.setPosition(999999.0f, 999999.0f);
+		}
+	}*/
 	body.setPosition(hitbox.getPosition());
 }
 
@@ -679,11 +698,12 @@ bool Caster::isDead(RenderWindow& rw, float deltaTime)
 	if (health <= 0)
 	{
 		const int row = 2;
-		while (animation.playRow(row, deltaTime, faceRight))
+		/*while (animation.playRow(row, deltaTime, faceRight))
 		{
 			body.setTextureRect(animation.uvRect);
 			rw.draw(body);
-		}
+		}*/
+		body.setFillColor(Color::Red);
 		hitbox.setPosition(999999.0f, 999999.0f);
 		return true;
 	}

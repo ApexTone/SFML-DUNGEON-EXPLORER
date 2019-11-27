@@ -272,6 +272,7 @@ int main()
 	pressQ.setPosition(-20+RWWIDTH/2,-100+4*RWHEIGHT/6);
 	pressQ.setString("Press Q to continue");
 	pressQ.setOrigin(pressQ.getGlobalBounds().width/2,pressQ.getGlobalBounds().height/2);
+
 	//Game Loop
 	while (rw.isOpen())
 	{
@@ -298,13 +299,13 @@ int main()
 				case Keyboard::Return:
 					switch (menu.getPressedItem())
 					{
-					case 0: cout << "Start game" << endl;
+					case 0: //cout << "Start game" << endl;
 						gameState = 1000;//pre-game start
 						break;
-					case 1:  cout << "How to play menu" << endl;
+					case 1:  //cout << "How to play menu" << endl;
 						gameState = -1;//How to play
 						break;
-					case 2: cout << "Highscore menu" << endl;
+					case 2: //cout << "Highscore menu" << endl;
 						gameState = -3;//Highscore
 						break;
 					case 3: //cout << "Exit game" << endl;

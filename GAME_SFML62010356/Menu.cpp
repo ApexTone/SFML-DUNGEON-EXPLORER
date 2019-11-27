@@ -160,7 +160,7 @@ HowToPlay::HowToPlay(float width, float height)
 	if (!font.loadFromFile("FiddlersCoveRegular-Mgge.otf"))
 	{
 		//Handle error
-		cout << "Can't load FiddlersCoveRegular font" << endl;
+		//cout << "Can't load FiddlersCoveRegular font" << endl;
 	}
 	for (int i = 0; i < 7; i++)
 	{

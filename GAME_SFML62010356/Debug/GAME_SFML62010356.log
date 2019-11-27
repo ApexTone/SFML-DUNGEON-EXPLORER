@@ -1,13 +1,10 @@
-﻿  Enemy.cpp
-  Player.cpp
-  main.cpp
+﻿  main.cpp
 C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(18,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
 C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(255,85): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
 C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(255,85): warning C4244:         with
 C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(255,85): warning C4244:         [
 C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(255,85): warning C4244:             T=float
 C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(255,85): warning C4244:         ]
-  Generating Code...
 C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(255,39): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
 C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(255,39): warning C4244:         with
 C:\Users\Predator\source\repos\GAME_SFML62010356\GAME_SFML62010356\main.cpp(255,39): warning C4244:         [
