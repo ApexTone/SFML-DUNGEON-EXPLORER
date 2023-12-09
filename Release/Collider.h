@@ -1,20 +1,19 @@
 #pragma once
-#include<SFML/Graphics.hpp>
+#include <SFML/Graphics.hpp>
 using namespace sf;
-class Collider
-{
+class Collider {
 public:
-	Collider(RectangleShape& body);
-	~Collider();
+  Collider(RectangleShape &body);
+  ~Collider();
 
-	void Move(float dx, float dy);
+  void Move(float dx, float dy);
 
-	bool CheckCollision(Collider other, float push);
-	bool CheckIntersect(Collider other);
-	Vector2f GetPosition();
-	Vector2f GetHalfSize();
-	void drawCollider(RenderWindow& rw);
+  bool CheckCollision(Collider other, float push);
+  bool CheckIntersect(Collider other);
+  Vector2f GetPosition();
+  Vector2f GetHalfSize();
+  void drawCollider(RenderWindow &rw);
 
 private:
-	RectangleShape& body;
+  RectangleShape &body;
 };
